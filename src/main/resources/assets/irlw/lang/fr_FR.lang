@@ -1,0 +1,12 @@
+generator.irlworld=Monde Réel
+
+irlwworldgui.title=Customization du monde IRL
+irlwworldgui.token=Json du generateur:
+irlwworldgui.text1=Cette page devrait être améliorée dans le futur.
+
+irlwconfiggui.text1=Le mod utilise l'API géographique mapbox pour générer le monde.
+irlwconfiggui.text2=Vous devrez créer un compte Mapbox gratuit ici:
+irlwconfiggui.text3=https://www.mapbox.com
+irlwconfiggui.text4=Rendez vous ensuite dans Account, puis dans API access token et générez un token.
+
+item.world_map.name=Planisphère
