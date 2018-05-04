@@ -79,8 +79,6 @@ public class TiledMap<T extends RasterWebTile> {
 	
 	
 	public T getTileAt(long x, long y, int zoom) {
-		//TODO Throw an exception if tile does not exist
-		//TODO Javadoc
 		long tileX = MapboxUtils.getTileXAt(x);
 		long tileY = MapboxUtils.getTileYAt(y);
 		return this.getTile(tileX, tileY, zoom);

@@ -71,4 +71,10 @@ public class IRLWServerProxy implements IRLWProxy{
 		//TODO Test this!
 	}
 
+	@Override
+	public void stopServer() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

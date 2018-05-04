@@ -107,7 +107,6 @@ public class IRLW {
 		IRLW.cacheManager.startWorker();
 		
 		IRLW.logger.info("Registering world type: " + IRLW.WORLD_TYPE_NAME);
-		//TODO localization
 		new IRLWorldType(IRLW.WORLD_TYPE_NAME); //Instantiating is enough
 		IRLW.proxy.preinit(event);
 	}

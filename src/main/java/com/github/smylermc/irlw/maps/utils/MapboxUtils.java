@@ -21,11 +21,7 @@
 package com.github.smylermc.irlw.maps.utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -71,17 +67,6 @@ public class MapboxUtils {
 	public static long getTileXAt(long x){
 		return IRLWUtils.roudSmaller((float)x / MapboxUtils.TILE_DIMENSIONS);
 	}
-	
-	/**
-	 * 
-	 * @param x
-	 * @param zoomLevel
-	 * @return the x coordinate of the tile at the given x position in the world, assuming map is scaled at zoom level zoomLevel
-	 */
-	/*public static int getTileXAt(long x, int zoomLevel){
-		return roudSmaller(((float)x + (1<<zoomLevel) * MapboxUtils.TILE_DIMENSIONS / 2 ) / MapboxUtils.TILE_DIMENSIONS);
-	}
-	*/
 	
 	/**
 	 * 
@@ -145,6 +130,8 @@ public class MapboxUtils {
 	 * @param zoomLevel The web mercator zoom level of the map
 	 * 
 	 * @return a BlockPos object which x and z coordinates matches the translated x and y map coordinates to the world. The BlockPos y is always 0.
+	 * 
+	 * @deprecated
 	 */
 	public static long mapCoordinatesToWorld(long coordinate,int zoomLevel) {
 		return coordinate - MapboxUtils.getMapDimensionInPixel(zoomLevel) / 2;
@@ -191,28 +178,9 @@ public class MapboxUtils {
 	 * @throws InvalidMapboxSessionException
 	 */
 	public static void saveMapboxUrlToFile(URL url, File file) throws IOException, InvalidMapboxSessionException {
-		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-		
-		connection.setAllowUserInteraction(false);
-		connection.setRequestMethod("GET");
-		
-		connection.connect();
-		
-		switch(connection.getResponseCode()) {
-		
-		case HttpURLConnection.HTTP_OK:  //TODO Make sure we don't need to support 304 response (could they happend in this context?)
-			InputStream inStream = connection.getInputStream();
-			OutputStream outStream = new FileOutputStream(file);
-			int lastByte = -1;
-            byte[] buffer = new byte[32];
-            while ((lastByte = inStream.read(buffer)) != -1) {
-                outStream.write(buffer, 0, lastByte);
-            }
-			break;
-		case HttpURLConnection.HTTP_UNAUTHORIZED:
+		int response = IRLW.cacheManager.downloadUrlToFile(url, file);
+		if(response == HttpURLConnection.HTTP_UNAUTHORIZED) {
 			throw new InvalidMapboxSessionException();
-		case HttpURLConnection.HTTP_NOT_FOUND:
-			throw new FileNotFoundException();
 		}
 	}
 	

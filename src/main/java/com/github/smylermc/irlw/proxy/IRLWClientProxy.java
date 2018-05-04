@@ -66,8 +66,17 @@ public class IRLWClientProxy implements IRLWProxy {
 	@Override
 	public void onGenerationError(World world, Exception e) {
 		//TODO improve
-		IRLW.logger.error("An exception occured while generating, stoping the integrated server");
-		Minecraft.getMinecraft().getIntegratedServer().stopServer();
+		if(Minecraft.getMinecraft().getIntegratedServer().isServerRunning()) {
+			IRLW.logger.error("An exception occured while generating, stoping the integrated server");
+			Minecraft.getMinecraft().getIntegratedServer().stopServer();
+		}
+
+	}
+
+	@Override
+	public void stopServer() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

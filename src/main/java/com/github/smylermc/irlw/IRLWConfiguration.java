@@ -46,6 +46,10 @@ public class IRLWConfiguration{
 	@Config.Comment("The default zoom level to use when generating a world")
 	public static int defaultZoomLevel = 0;
 	
+	public static void sync() {
+		ConfigManager.sync(IRLW.MOD_ID, Config.Type.INSTANCE);	
+	}
+	
 	@Mod.EventBusSubscriber(modid = IRLW.MOD_ID)
 	private static class EventHandler {
 
@@ -57,7 +61,7 @@ public class IRLWConfiguration{
 		@SubscribeEvent
 		public static void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) {
 			if (event.getModID().equals(IRLW.MOD_ID)) {
-				ConfigManager.sync(IRLW.MOD_ID, Config.Type.INSTANCE);
+				IRLWConfiguration.sync();
 			}
 		}
 }

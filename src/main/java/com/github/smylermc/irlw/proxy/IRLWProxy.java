@@ -39,10 +39,14 @@ public interface IRLWProxy {
 	
 	public void serverStart(FMLServerStartingEvent event);
 	
+	public void stopServer(); // Called when there is no other choice than stopping the server
+	
 	public void failedToCache(); //Called by the cache manager when an IO Exception is thrown
 	
+	/* Called when the mapbox token is found to be wrong, usually by the cache manager */
 	public void onInInvalidMapboxToken();
 	
+	/* Called by the chunk generator when it fails and returns an empty chunk */
 	public void onGenerationError(World world, Exception e);
 	
 }

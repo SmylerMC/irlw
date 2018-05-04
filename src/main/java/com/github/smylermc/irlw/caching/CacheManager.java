@@ -210,9 +210,6 @@ public class CacheManager implements Runnable {
 		if(!this.isCallingFromWorker()) 
 			IRLW.logger.warn("Caching from an other thread!!");
 		
-		synchronized(IRLW.logger) {//TODO debug
-			//IRLW.logger.info(this.getQueueSize());
-		}
 		if(this.isCached(toCache)) return;
 		File f = this.getCachableFile(toCache);
 		if(toCache instanceof MapboxWebTile) {
@@ -316,9 +313,8 @@ public class CacheManager implements Runnable {
 		return false;		
 	}
 	
-	
-	//TODO Use this in MapboxUtils::saveMapboxURLToFile
-	public void downloadUrlToFile(URL url, File file) throws IOException {
+
+	public int downloadUrlToFile(URL url, File file) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 		
 		connection.setAllowUserInteraction(false);
@@ -338,11 +334,10 @@ public class CacheManager implements Runnable {
                 outStream.write(buffer, 0, lastByte);
             }
 			break;
-		case HttpURLConnection.HTTP_UNAUTHORIZED:
-			break;
 		case HttpURLConnection.HTTP_NOT_FOUND:
 			throw new FileNotFoundException();
 		}
+		return connection.getResponseCode();
 	}
 
 }

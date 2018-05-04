@@ -37,8 +37,8 @@ public class WebMercatorUtils {
 	 * @param zoomlevel The zoom level
 	 * @return a double
 	 */
-	public static double getXFromLongitude(double lo, int zoomlevel){
-		return WebMercatorUtils.getXFromLongitudeRads(Math.toRadians(lo), zoomlevel);
+	public static double getXFromLongitude(double lo, int zoomLevel){
+		return WebMercatorUtils.getXFromLongitudeRads(Math.toRadians(lo), zoomLevel);
 	}
 	
 	
