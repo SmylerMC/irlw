@@ -11,7 +11,8 @@ A Minecraft mod adding a new "IRL" world type which uses real world data from [M
 ### Setup:
 The mod is still in early developpement, so except crashes. An internet connection is required when playing (unless you want it to crash).
 
-* You will need [Forge](https://files.minecraftforge.net/) for Mineacrft 1.12.2.
+* You will need [Forge](https://files.minecraftforge.net/) for Minecraft 1.12.2.
+* Download the mod's jar from github's [release section](https://github.com/SmylerMC/irlw/releases).
 * Add the mod to your mod directory inside your .minecraft directory.
 * Create a Mapbox account [here](https://www.mapbox.com/), and generate a token in the account section.
 * Launch the modded game, and open the singleplayer menu. You should be prompted to enter the token you just created.
