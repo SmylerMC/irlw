@@ -30,6 +30,7 @@ import com.github.smylermc.irlw.maps.exceptions.InvalidMapboxSessionException;
 import com.github.smylermc.irlw.maps.tiles.RasterWebTile;
 import com.github.smylermc.irlw.maps.tiles.tiles.MapboxElevationTile;
 import com.github.smylermc.irlw.maps.utils.MapboxUtils;
+import com.github.smylermc.irlw.maps.utils.WebMercatorUtils;
 
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
@@ -52,11 +53,10 @@ import net.minecraft.world.gen.IChunkGenerator;
 public class IRLWChunkGenerator implements IChunkGenerator{
 
 	private World world;
-	private long seed;
 	
 	//TODO implement
-	private double centerLong = 0;
-	private double centerLat = 0;
+	private long xDelta;
+	private long zDelta;
 	private int zoomLevel = 0;
 	private TiledMap<MapboxElevationTile> heightMap;
 	
@@ -72,43 +72,54 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	 * @param generatorOptions
 	 */
 	public IRLWChunkGenerator(World worldIn, long seed, double centerLong, double centerLat, int zoomLevel) {
-		this.centerLong = centerLong;
-		this.centerLat = centerLat;
+		this.xDelta = (long) WebMercatorUtils.getXFromLongitude(centerLong, zoomLevel)/16;
+		this.zDelta = (long) WebMercatorUtils.getYFromLatitude(centerLat, zoomLevel)/16;
+		this.xDelta *= 16;	//We are just rounding up to match chunks
+		this.zDelta *= 16;
 		this.zoomLevel = zoomLevel;
 		this.world = worldIn;
-		this.seed = seed;
 		this.heightMap = new TiledMap<MapboxElevationTile>(TileFactory.MAPBOX_ELEVATION_TILE_FACTORY, this.zoomLevel);
+		this.heightMap.enableSmartLoading();
 		this.overwoldGenerator = new ChunkGeneratorOverworld(worldIn, seed, true, "");
 	}
 	
 	@Override
 	public Chunk generateChunk(int x, int z) {
 		
+		Chunk chunk = new EmptyChunk(this.world, x, z);
+		
 		try {
 			ChunkPrimer primer = new ChunkPrimer();
 			this.setBlocksInChunk(x, z, primer);
 			Biome[] biomesForGeneration = this.world.getBiomeProvider().getBiomes(new Biome[] {}, x * 16, z * 16, 16, 16);
 		    this.overwoldGenerator.replaceBiomeBlocks(x, z, primer, biomesForGeneration);
-		    Chunk chunk = new Chunk(world, primer, x, z);
-		    chunk.generateSkylightMap();
-		    return chunk;
+		    chunk = new Chunk(world, primer, x, z);
 		} catch (Exception e) {
-			if(!(e instanceof RasterWebTile.InvalidTileCoordinatesException)){
+			if(e instanceof RasterWebTile.InvalidTileCoordinatesException){
+				chunk = new Chunk(world, x, z);
+			} else {
 				IRLW.logger.catching(e);
 				IRLW.proxy.onGenerationError(world, e);
+				return chunk;
 			}
-			return new EmptyChunk(this.world, x, z);
 		}
+		
+	    chunk.generateSkylightMap();
+	    return chunk;
+	    
 	}
 	
+	/*
+	 * This is all temporary, but works
+	 */
 	public void setBlocksInChunk(int x, int z, ChunkPrimer primer) throws IOException, InvalidMapboxSessionException {
 		for(int cx = 0; cx<16; cx++) {
 			for(int cz = 0; cz<16; cz++) {
-				int height = (int) (Math.round(getHeightFromData((long)x*16+cx, (long)z*16+cz))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-				int heightUp = (int) (Math.round(getHeightFromData((long)x*16+cx+1, (long)z*16+cz))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-				int heightDown = (int) (Math.round(getHeightFromData((long)x*16+cx-1, (long)z*16+cz))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-				int heightLeft = (int) (Math.round(getHeightFromData((long)x*16+cx, (long)z*16+cz+1))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-				int heightRight = (int) (Math.round(getHeightFromData((long)x*16+cx, (long)z*16+cz-1))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+				int height = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+				int heightUp = (int) (Math.round(getHeightFromData((long)x*16+cx+1+ this.xDelta, (long)z*16+cz+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+				int heightDown = (int) (Math.round(getHeightFromData((long)x*16+cx-1 + this.xDelta, (long)z*16+cz + this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+				int heightLeft = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+				int heightRight = (int) (Math.round(getHeightFromData((long)x*16+cx+ this.xDelta, (long)z*16+cz-1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
 				if(height!=0) height += 63; else height = 43;
 				if(heightUp!=0) heightUp += 63;else heightUp = 43;
 				if(heightDown!=0) heightDown += 63;else heightDown = 43;
@@ -142,14 +153,13 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 
 	@Override
 	public void populate(int x, int z) {
-		this.overwoldGenerator.populate(x, z);		
+			this.overwoldGenerator.populate(x, z);
 	}
 
 
 	@Override
 	public boolean generateStructures(Chunk chunkIn, int x, int z) {
-		return this.overwoldGenerator.generateStructures(chunkIn, x, z);
-//		return false; //TODO It gets crazy generating chests otherwise
+		return this.overwoldGenerator.generateStructures(chunkIn, x, z); 
 	}
 
 
@@ -169,7 +179,6 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	@Override
 	public void recreateStructures(Chunk chunkIn, int x, int z) {
 		this.overwoldGenerator.recreateStructures(chunkIn, x, z);
-		//TODO It gets crazy generating chests otherwise
 	}
 
 

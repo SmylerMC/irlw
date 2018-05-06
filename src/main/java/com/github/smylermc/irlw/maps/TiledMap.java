@@ -37,6 +37,8 @@ public class TiledMap<T extends RasterWebTile> {
 	protected TileFactory<T> factory;
 	protected ArrayList<T> tiles;
 	
+	protected boolean smartLoadEnable = false;
+	
 	//TODO javadoc
 	public TiledMap(TileFactory<T> fact, int zoomLevel) {
 		this.factory = fact;
@@ -63,13 +65,29 @@ public class TiledMap<T extends RasterWebTile> {
 	}
 	
 	
+	protected void loadTile(T tile) {
+		this.tiles.add(tile);
+		if(this.isSmartLoadingEnabled()) {
+			IRLW.cacheManager.cacheAsync(tile);
+			this.disableSmartLoading();
+			for(int x=-1; x<=1; x++) {
+				for(int y=-1; y<=1; y++) {
+					if(x == 0 && y == 0) continue;
+					try {
+						IRLW.cacheManager.cacheAsync(this.getTile(tile.getX()+x, tile.getY()+y));
+					} catch (RasterWebTile.InvalidTileCoordinatesException e) {}
+				}
+			}
+			this.enableSmartLoading();
+		}
+	}
 	public T getTile(long x, long y, int zoom) {
 		//TODO A better way to store our tiles, this will be very slow with large maps
 		for(T tile: this.tiles)
 			if(tile.getX() == x && tile.getY() == y && tile.getZoom() == zoom)
 				return tile;
 		T tile = this.factory.getInstance(x, y, zoom);
-		this.tiles.add(tile);
+		this.loadTile(tile);
 		return tile;
 	}
 	
@@ -108,6 +126,18 @@ public class TiledMap<T extends RasterWebTile> {
 		long tileY = MapboxUtils.getTileYAt(y);
 		int tX = (int)(x % 256), tY = (int)(y % 256);
 		return this.getTile(tileX, tileY).getPixel(tX, tY);
+	}
+	
+	public void enableSmartLoading() {
+		this.smartLoadEnable = true;
+	}
+	
+	public void disableSmartLoading() {
+		this.smartLoadEnable = false;
+	}
+	
+	public boolean isSmartLoadingEnabled() {
+		return this.smartLoadEnable;
 	}
 	
 } 	
