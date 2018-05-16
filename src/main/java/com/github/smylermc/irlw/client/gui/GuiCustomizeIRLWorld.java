@@ -38,6 +38,8 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 
 
+//TODO world customization GUI Does not remember settings if closed and reopened
+
 /**
  * This will change a lot in the future, as it is not the current main focus
  * 
@@ -173,7 +175,6 @@ public class GuiCustomizeIRLWorld extends GuiScreen implements GuiPageButtonList
     	switch(button.id){
     	case DONE_ID:
     		save();
-    		Keyboard.enableRepeatEvents(false); //We need to disable that, we activated it when the gui opened
     		this.mc.currentScreen = this.createWorldGui;
     		this.mc.updateDisplay();
     		break;

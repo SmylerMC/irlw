@@ -256,6 +256,7 @@ public class GuiInvalidTokenPrompt extends GuiScreen implements Runnable{
 
 	@Override
 	public void run() {
+		this.parent = Minecraft.getMinecraft().currentScreen;
 		Minecraft.getMinecraft().displayGuiScreen(this);
 	}
 }
