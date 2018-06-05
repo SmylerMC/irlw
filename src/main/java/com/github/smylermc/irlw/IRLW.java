@@ -18,7 +18,6 @@
 */
 package com.github.smylermc.irlw;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
@@ -55,9 +54,10 @@ public class IRLW {
 	public static final String MC_VERSIONS = "1.12.2";
 	public static final String AUTHOR_EMAIL = "smyler@mail.com";
 	public static final String WORLD_TYPE_NAME = "irlworld";
-	
+
+	// Wikimedia's map requires you to use a user agent with such information
 	public static final String HTTP_USER_AGENT = 
-			"IRLW Minecraft mod: https://github.com/SmylerMC/irlw. v" +
+			"IRLW Minecraft mod: https://github.com/SmylerMC/irlw v" +
 			IRLW.MOD_VERSION +
 			" contact: " + IRLW.AUTHOR_EMAIL;
 
@@ -71,7 +71,6 @@ public class IRLW {
     
     /* Config and logger */
     public static Logger logger;
-    public static File configDir;
     public static CacheManager cacheManager;
     
     
@@ -91,9 +90,7 @@ public class IRLW {
 	public void preinit(FMLPreInitializationEvent event) {
 		IRLW.logger = event.getModLog();
 		IRLW.logger.debug("IRLW preinit...");
-		
-		IRLW.configDir = event.getModConfigurationDirectory();
-		
+				
 		try {
 			IRLW.cacheManager = new CacheManager(IRLWConfiguration.cachingDir);
 			IRLW.cacheManager.createDirectory();

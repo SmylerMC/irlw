@@ -58,7 +58,7 @@ public class GuiInvalidTokenPrompt extends GuiScreen implements Runnable{
 
 	
 	public GuiInvalidTokenPrompt() {
-		this(null);
+		this(Minecraft.getMinecraft().currentScreen);
 	}
 	
 	
@@ -256,7 +256,6 @@ public class GuiInvalidTokenPrompt extends GuiScreen implements Runnable{
 
 	@Override
 	public void run() {
-		this.parent = Minecraft.getMinecraft().currentScreen;
 		Minecraft.getMinecraft().displayGuiScreen(this);
 	}
 }
