@@ -46,6 +46,7 @@ import com.google.common.io.Files;
  * It has a worker thread running to allow for asynchronous caching.
  * The worker is started by the mod during preinit
  *
+ * FIXME Crashes when clicking on ignore
  */
 public class CacheManager implements Runnable {
 	
@@ -100,7 +101,7 @@ public class CacheManager implements Runnable {
 				sleep = 10;
 			}else {
 				sleep = 10;
-				synchronized(toCache) {
+				synchronized(toCache) {  //Crashes the thread when null
 					try {
 						this.currentlyCachedByWorker = toCache;
 						this.cache(toCache);

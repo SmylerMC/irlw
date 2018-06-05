@@ -86,7 +86,7 @@ public final class DebugScreenHandler {
 			list.add(PREFIX + TextFormatting.RED + "Please tell the modder at " + IRLW.AUTHOR_EMAIL + TextFormatting.RESET);
 			list.add(PREFIX + TextFormatting.RED + "Exception: " + e.toString() + ":" + e.getMessage() + TextFormatting.RESET);
 			if(!this.isRenderingExceptionLogged){
-				IRLW.logger.error("Failed to display F3 debug information. Please report to th modder at " + IRLW.AUTHOR_EMAIL);
+				IRLW.logger.error("Failed to display F3 debug information. Please report to the modder at " + IRLW.AUTHOR_EMAIL);
 				IRLW.logger.catching(e);
 				this.isRenderingExceptionLogged = true;
 			}
