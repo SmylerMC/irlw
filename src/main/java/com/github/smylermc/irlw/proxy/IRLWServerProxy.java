@@ -19,11 +19,13 @@
 package com.github.smylermc.irlw.proxy;
 
 import com.github.smylermc.irlw.IRLW;
+import com.github.smylermc.irlw.network.IRLWPacketHandler;
 
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import net.minecraft.world.World;
 
 /**
@@ -34,7 +36,7 @@ public class IRLWServerProxy implements IRLWProxy{
 
 	@Override
 	public void preinit(FMLPreInitializationEvent event) {
-		
+		IRLWPacketHandler.registerHandlers(Side.SERVER);
 	}
 
 	@Override

@@ -23,8 +23,13 @@ package com.github.smylermc.irlw.client.gui;
 import java.util.ArrayList;
 
 import com.github.smylermc.irlw.IRLW;
+import com.github.smylermc.irlw.maps.utils.MapboxUtils;
+import com.github.smylermc.irlw.world.IRLWWorldData;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 
 
 /**
@@ -64,21 +69,21 @@ public final class DebugScreenHandler {
 		ArrayList<String> list = new ArrayList<String>();
 		try{
 			//TODO
-//			World world = Minecraft.getMinecraft().world;
-//			if((!world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)) || world.getGameRules().getBoolean("reducedDebugInfo")) //TODO The gamerules doesn't seem to be sync :(
-//				return list;
-//			list.add("");
-//			EntityPlayerSP player = Minecraft.getMinecraft().player;
-//			MapboxWorldData mapbox = (MapboxWorldData)world.loadData(MapboxWorldData.class, MapboxWorldData.MAPBOX_DATA);
-//			int zoom = mapbox.getZoomLevel();
-//			double playerX = player.getPosition().getX();
-//			double playerZ = player.getPosition().getZ();
-//			if(MapboxUtils.isInWorld((long)playerX, (long)playerZ, zoom)){
-//				list.add(PREFIX + "Mercator zoom: " + zoom + "; Tile: x=" + MapboxUtils.getTileXAt((long) playerX, zoom) + "; y=" + MapboxUtils.getTileYAt((long) playerZ, zoom));
-//				list.add(PREFIX + "Latitude: " + WebMercatorUtils.getLatFromY(playerZ + (1<<zoom)*MapboxMap.TILE_DIMENSIONS/2, zoom)+ "°, Longitude: " + WebMercatorUtils.getLongFromX(playerX + (1<<zoom)*MapboxMap.TILE_DIMENSIONS/2, zoom) + "°");
-//			}else{
-//				list.add(PREFIX + "Mercator zoom: " + zoom + ";" + TextFormatting.YELLOW + " You are outside the world." + TextFormatting.RESET);
-//			}
+			World world = Minecraft.getMinecraft().world;
+			if((!world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)) || world.getGameRules().getBoolean("reducedDebugInfo")) //TODO The gamerules doesn't seem to be sync :(
+				return list;
+			list.add("");
+			EntityPlayerSP player = Minecraft.getMinecraft().player;
+			IRLWWorldData mapbox = (IRLWWorldData)world.loadData(IRLWWorldData.class, IRLWWorldData.IRLW_DATA);
+			int zoom = mapbox.getZoomLevel();
+			double playerX = player.getPosition().getX();
+			double playerZ = player.getPosition().getZ();
+			if(MapboxUtils.isInWorld((long)playerX, (long)playerZ, zoom)){
+				list.add(PREFIX + "Mercator zoom: " + zoom + "; Tile: x=" + MapboxUtils.getTileXAt((long) playerX) + "; y=" + MapboxUtils.getTileYAt((long) playerZ));
+				//list.add(PREFIX + "Latitude: " + WebMercatorUtils.getLatFromY(playerZ + (1<<zoom)*MapboxMap.TILE_DIMENSIONS/2, zoom)+ "°, Longitude: " + WebMercatorUtils.getLongFromX(playerX + (1<<zoom)*MapboxMap.TILE_DIMENSIONS/2, zoom) + "°");
+			}else{
+				list.add(PREFIX + "Mercator zoom: " + zoom + ";" + TextFormatting.YELLOW + " You are outside the world." + TextFormatting.RESET);
+			}
 			if(Minecraft.getMinecraft().isIntegratedServerRunning())
 				list.add(PREFIX + "Cacher queue size: " + IRLW.cacheManager.getQueueSize());
 		}catch(Exception e){

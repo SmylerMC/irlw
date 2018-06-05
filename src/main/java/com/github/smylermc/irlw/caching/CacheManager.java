@@ -98,9 +98,9 @@ public class CacheManager implements Runnable {
 				toCache = this.toCacheAsync.poll();
 			}
 			if(toCache == null) {
-				sleep = 10;
+				sleep = 20;
 			}else {
-				sleep = 10;
+				sleep = 0;
 				synchronized(toCache) {  //Crashes the thread when null
 					try {
 						this.currentlyCachedByWorker = toCache;
@@ -208,10 +208,12 @@ public class CacheManager implements Runnable {
 	 * @throws InvalidMapboxSessionException
 	 */
 	public void cache(Cachable toCache) throws IOException, InvalidMapboxSessionException {
+		
+		if(this.isCached(toCache)) return;
+		
 		if(!this.isCallingFromWorker()) 
 			IRLW.logger.warn("Caching from an other thread!!");
 		
-		if(this.isCached(toCache)) return;
 		File f = this.getCachableFile(toCache);
 		if(toCache instanceof MapboxWebTile) {
 			try {

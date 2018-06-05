@@ -31,6 +31,7 @@ import com.github.smylermc.irlw.maps.tiles.RasterWebTile;
 import com.github.smylermc.irlw.maps.tiles.tiles.MapboxElevationTile;
 import com.github.smylermc.irlw.maps.utils.MapboxUtils;
 import com.github.smylermc.irlw.maps.utils.WebMercatorUtils;
+import com.github.smylermc.irlw.world.IRLWEmptyChunk;
 
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
@@ -40,7 +41,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.gen.ChunkGeneratorOverworld;
 import net.minecraft.world.gen.IChunkGenerator;
 
@@ -54,9 +54,10 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 
 	private World world;
 	
-	//TODO implement
 	private long xDelta;
 	private long zDelta;
+	private double centerLong;
+	private double centerLat;
 	private int zoomLevel = 0;
 	private TiledMap<MapboxElevationTile> heightMap;
 	
@@ -72,8 +73,10 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	 * @param generatorOptions
 	 */
 	public IRLWChunkGenerator(World worldIn, long seed, double centerLong, double centerLat, int zoomLevel) {
-		this.xDelta = (long) WebMercatorUtils.getXFromLongitude(centerLong, zoomLevel)/16;
-		this.zDelta = (long) WebMercatorUtils.getYFromLatitude(centerLat, zoomLevel)/16;
+		this.centerLat = centerLat;
+		this.centerLong = centerLong;
+		this.xDelta = (long) WebMercatorUtils.getXFromLongitude(this.centerLong, zoomLevel)/16;
+		this.zDelta = (long) WebMercatorUtils.getYFromLatitude(this.centerLat, zoomLevel)/16;
 		this.xDelta *= 16;	//We are just rounding up to match chunks
 		this.zDelta *= 16;
 		this.zoomLevel = zoomLevel;
@@ -86,7 +89,7 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	@Override
 	public Chunk generateChunk(int x, int z) {
 		
-		Chunk chunk = new EmptyChunk(this.world, x, z);
+		Chunk chunk = new IRLWEmptyChunk(this.world, x, z);
 		
 		try {
 			ChunkPrimer primer = new ChunkPrimer();
@@ -98,9 +101,12 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 			if(e instanceof RasterWebTile.InvalidTileCoordinatesException){
 				chunk = new Chunk(world, x, z);
 			} else {
+				IRLW.logger.error("We got an exception when generating! See stack trace. You may report bugs to " + IRLW.AUTHOR_EMAIL);
+				IRLW.logger.error("Here is more info: \n\tZoom level: " + this.zoomLevel +
+						"\n\tDelta X: " + this.xDelta + " Delta Z: " + this.zDelta +
+						"\n\tChunk: (" + x + ";" + z);
 				IRLW.logger.catching(e);
 				IRLW.proxy.onGenerationError(world, e);
-				return chunk;
 			}
 		}
 		
@@ -185,6 +191,28 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	@Override
 	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
 		return this.overwoldGenerator.isInsideStructure(worldIn, structureName, pos);
+	}
+	
+	/* Getters and Setters from there */
+	
+	public int getZoomLevel() {
+		return this.zoomLevel;
+	}
+	
+	public long getDeltaX() {
+		return this.xDelta;
+	}
+	
+	public long getDeltaZ() {
+		return this.zDelta;
+	}
+	
+	public double getCenterLatitude() {
+		return this.centerLat;
+	}
+
+	public double getCenterLongitude() {
+		return this.centerLong;
 	}
 
 }

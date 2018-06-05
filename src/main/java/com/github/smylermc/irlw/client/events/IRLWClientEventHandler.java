@@ -18,7 +18,7 @@
 */
 
 
-package com.github.smylermc.irlw.client.gui.events;
+package com.github.smylermc.irlw.client.events;
 
 import com.github.smylermc.irlw.IRLW;
 import com.github.smylermc.irlw.IRLWConfiguration;

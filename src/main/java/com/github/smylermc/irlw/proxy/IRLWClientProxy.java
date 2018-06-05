@@ -19,13 +19,17 @@
 package com.github.smylermc.irlw.proxy;
 
 import com.github.smylermc.irlw.IRLW;
+import com.github.smylermc.irlw.network.IRLWPacketHandler;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author SmylerMC
@@ -35,7 +39,7 @@ public class IRLWClientProxy implements IRLWProxy {
 
 	@Override
 	public void preinit(FMLPreInitializationEvent event) {
-
+		IRLWPacketHandler.registerHandlers(Side.CLIENT);
 	}
 
 	@Override
@@ -55,28 +59,42 @@ public class IRLWClientProxy implements IRLWProxy {
 
 	@Override
 	public void failedToCache() {
-		//TODO Implement this
+		IRLW.logger.error("There was an error when cashing a file");
+		stopServer();
 	}
 
 	@Override
 	public void onInInvalidMapboxToken() {
-		
+		IRLW.logger.error("The mapbox token is invalid, we are making sure no server is running!");
+		stopServer();
 	}
 
 	@Override
 	public void onGenerationError(World world, Exception e) {
-		//TODO improve
-		if(Minecraft.getMinecraft().getIntegratedServer().isServerRunning()) {
-			IRLW.logger.error("An exception occured while generating, stoping the integrated server");
-			Minecraft.getMinecraft().loadWorld(null);
-		}
-
+		IRLW.logger.error("There was an error when generating, trying to stop the integrated server");
+		stopServer();
 	}
 
 	@Override
 	public void stopServer() {
-		// TODO Auto-generated method stub
-		
+		if(Minecraft.getMinecraft().getIntegratedServer().isServerRunning()) {
+			IRLW.logger.error("Trying to stop the integrated server");
+			Minecraft.getMinecraft().world.sendQuittingDisconnectingPacket();
+
+			Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+
+				@Override
+				public void run() {
+					Minecraft.getMinecraft().loadWorld((WorldClient)null);
+					Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu()); //TODO Error screen
+				}
+				
+			});
+            
+//			Minecraft.getMinecraft().loadWorld(null);
+		}else {
+			IRLW.logger.info("The integrated server is not running, we won't stop it.");
+		}
 	}
 
 }
