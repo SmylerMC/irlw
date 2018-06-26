@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
+import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 import org.framagit.smylermc.irlw.world.IRLWWorldData;
 
 import net.minecraft.client.Minecraft;
@@ -83,8 +84,14 @@ public final class DebugScreenHandler {
 			if(MapboxUtils.isInWorld(playerMapX, playerMapZ, zoom)){
 				long tileX = MapboxUtils.getTileXAt((long) playerMapX );
 				long tileZ = MapboxUtils.getTileXAt((long) playerMapZ);
+				double longitude = WebMercatorUtils.getLongitudeFromX(playerMapX, zoom);
+				double latitude = WebMercatorUtils.getLatitudeFromY(playerMapZ, zoom);
+				double factor = WebMercatorUtils.getSizeFactorFromLatitude(latitude, zoom);
 				list.add(PREFIX + "Mercator zoom: " + zoom + "; Tile: x=" + tileX + "; y=" + tileZ);
-				//list.add(PREFIX + "Latitude: " + WebMercatorUtils.getLatFromY(playerZ + (1<<zoom)*MapboxMap.TILE_DIMENSIONS/2, zoom)+ "°, Longitude: " + WebMercatorUtils.getLongFromX(playerX + (1<<zoom)*MapboxMap.TILE_DIMENSIONS/2, zoom) + "°");
+				list.add(PREFIX + 
+						"Latitude: " + String.format("%f", latitude) + "°, " + 
+						"Longitude: " + String.format("%f", longitude) + "°");
+				list.add(PREFIX + "Size Factor: " + String.format("%f", factor));
 			}else{
 				list.add(PREFIX + "Mercator zoom: " + zoom + ";" + TextFormatting.YELLOW + " You are outside the world." + TextFormatting.RESET);
 			}

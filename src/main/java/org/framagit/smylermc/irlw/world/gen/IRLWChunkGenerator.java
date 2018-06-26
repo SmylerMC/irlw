@@ -32,6 +32,7 @@ import org.framagit.smylermc.irlw.maps.tiles.tiles.MapboxElevationTile;
 import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
 import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 import org.framagit.smylermc.irlw.world.IRLWEmptyChunk;
+import org.framagit.smylermc.irlw.world.WorldConstants;
 
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
@@ -63,7 +64,6 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	
 	private ChunkGeneratorOverworld overwoldGenerator;
 	
-	private final static int EVREST_ALTITUDE = 8848;
 	private final static int WATER_LEVEL = 63;
 	
 	/**
@@ -121,17 +121,17 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	public void setBlocksInChunk(int x, int z, ChunkPrimer primer) throws IOException, InvalidMapboxSessionException {
 		for(int cx = 0; cx<16; cx++) {
 			for(int cz = 0; cz<16; cz++) {
-				int height = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-				int heightUp = (int) (Math.round(getHeightFromData((long)x*16+cx+1+ this.xDelta, (long)z*16+cz+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-				int heightDown = (int) (Math.round(getHeightFromData((long)x*16+cx-1 + this.xDelta, (long)z*16+cz + this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-				int heightLeft = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-				int heightRight = (int) (Math.round(getHeightFromData((long)x*16+cx+ this.xDelta, (long)z*16+cz-1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+				int height = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+ this.zDelta))/(WorldConstants.EVREST_ALTITUDE/192));
+//				int heightUp = (int) (Math.round(getHeightFromData((long)x*16+cx+1+ this.xDelta, (long)z*16+cz+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+//				int heightDown = (int) (Math.round(getHeightFromData((long)x*16+cx-1 + this.xDelta, (long)z*16+cz + this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+//				int heightLeft = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+//				int heightRight = (int) (Math.round(getHeightFromData((long)x*16+cx+ this.xDelta, (long)z*16+cz-1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
 				if(height!=0) height += 63; else height = 43;
-				if(heightUp!=0) heightUp += 63;else heightUp = 43;
-				if(heightDown!=0) heightDown += 63;else heightDown = 43;
-				if(heightLeft!=0) heightLeft += 63;else heightLeft = 43;
-				if(heightRight!=0) heightRight += 63;else heightRight = 43;
-				height = (height +  heightUp + heightDown + heightLeft + heightRight) / 5 ;
+//				if(heightUp!=0) heightUp += 63;else heightUp = 43;
+//				if(heightDown!=0) heightDown += 63;else heightDown = 43;
+//				if(heightLeft!=0) heightLeft += 63;else heightLeft = 43;
+//				if(heightRight!=0) heightRight += 63;else heightRight = 43;
+//				height = (height +  heightUp + heightDown + heightLeft + heightRight) / 5 ; 
 				int cy=0;
 				for(; cy<height;cy++) {
 					primer.setBlockState(cx, cy, cz, Blocks.STONE.getDefaultState());
@@ -192,6 +192,7 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
 		return this.overwoldGenerator.isInsideStructure(worldIn, structureName, pos);
 	}
+	
 	
 	/* Getters and Setters from there */
 	

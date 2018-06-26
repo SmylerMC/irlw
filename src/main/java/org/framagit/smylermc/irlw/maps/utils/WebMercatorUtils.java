@@ -20,6 +20,7 @@
 
 package org.framagit.smylermc.irlw.maps.utils;
 
+import org.framagit.smylermc.irlw.world.WorldConstants;
 
 /**
  * A set of methods to work with the web mercator map projection.
@@ -84,46 +85,80 @@ public class WebMercatorUtils {
 	
 	
 	/** 
-	 * @param y a coordinate, as a positive integer, with 0;0 as the top left corner
+	 * @param y a coordinate on a web-mercator map, as an integer with 0;0 as the top left corner
 	 * @param zoomLevel The web-mercator zoom level, a positive integer
 	 * 
 	 * @return The corresponding latitude in degrees, between -180.0 and 180.0
 	 */
-	public static double getLatFromY(double y, int zoomLevel){
-		return Math.toDegrees(WebMercatorUtils.getLatFromYRads(y, zoomLevel));
+	public static double getLatitudeFromY(double y, int zoomLevel){
+		return Math.toDegrees(WebMercatorUtils.getLatitudeFromYRads(y, zoomLevel));
 	}
 	
 	
 	/**
-	 * @param x a coordinate, as a positive integer, with 0;0 as the top left corner
+	 * @param x a coordinate on a web-mercator map, as an integer with 0;0 as the top left corner
 	 * @param zoomLevel The web-mercator zoom level, a positive integer
 	 * 
 	 * @return The corresponding longitude in degrees, between -90.0 and 90.0
 	 */
-	public static double getLongFromX(double x, int zoomLevel){
-		return Math.toDegrees(WebMercatorUtils.getLongFromXRads(x, zoomLevel));
+	public static double getLongitudeFromX(double x, int zoomLevel){
+		return Math.toDegrees(WebMercatorUtils.getLongitudeFromXRads(x, zoomLevel));
 	}
 	
 	
 	/** 
-	 * @param y a coordinate, as a positive integer, with 0;0 as the top left corner
+	 * @param y a coordinate on a web-mercator map, as an integer with 0;0 as the top left corner
 	 * @param zoomLevel The web-mercator zoom level, a positive integer
 	 * 
 	 * @return The corresponding latitude in radians, between -pi and pi
 	 */
-	public static double getLatFromYRads(double y, int zoomLevel){
+	public static double getLatitudeFromYRads(double y, int zoomLevel){
 		return 2 * (Math.atan(Math.pow(Math.E, - ((y * Math.PI) / (1 << zoomLevel + 7) - Math.PI))) - Math.PI / 4);		
 	}
 	
 	
 	/**
-	 * @param x a coordinate, as a positive integer, with 0;0 as the top left corner
+	 * @param x a coordinate on a web-mercator map, as an integer with 0;0 as the top left corner
 	 * @param zoomLevel The web-mercator zoom level, a positive integer
 	 * 
 	 * @return The corresponding longitude in radians, between -pi/2 and pi/2
 	 */
-	public static double getLongFromXRads(double x, int zoomLevel){
+	public static double getLongitudeFromXRads(double x, int zoomLevel){
 		return (Math.PI * x) / (1 << 7 + zoomLevel) - Math.PI;
+	}
+	
+	
+	/**
+	 * @param latitude The latitude in radians, between -pi/2 and pi/2
+	 * @param zoomLevel The web-mercator zoom level, a positive integer
+	 * 
+	 * @return an approximate size factor, considering a pixel is a meter
+	 */
+	public static double getSizeFactorFromLatitudeRads(double latitude, int zoomLevel) {
+		return (1<<(zoomLevel+7))/(Math.PI * Math.cos(latitude) * WorldConstants.EARTH_RADIUS);
+	}
+	
+	
+	/**
+	 * @param y a coordinate on a web-mercator map, as an integer with 0;0 as the top left corner
+	 * @param zoomLevel The web-mercator zoom level, a positive integer
+	 * 
+	 * @return an approximate size factor, considering a pixel is a meter
+	 */
+	public static double getSizeFactorFromY(long y, int zoomLevel) {
+		double latitude = WebMercatorUtils.getLatitudeFromYRads(y, zoomLevel);
+		return WebMercatorUtils.getSizeFactorFromLatitudeRads(latitude, zoomLevel);
+	}
+	
+	
+	/**
+	 * @param latitude The latitude in degrees, between -90.0 and 90.0
+	 * @param zoomLevel The web-mercator zoom level, a positive integer
+	 * 
+	 * @return an approximate size factor, considering a pixel is a meter
+	 */
+	public static double getSizeFactorFromLatitude(double latitude, int zoomLevel) {
+		return (1<<(zoomLevel+7))/(Math.PI * Math.cos(Math.toRadians(latitude)) * WorldConstants.EARTH_RADIUS);
 	}
 	
 }
