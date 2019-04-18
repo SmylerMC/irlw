@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.exceptions.InvalidMapboxSessionException;
 import org.framagit.smylermc.irlw.maps.tiles.RasterWebTile;
-import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
+import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 
 /**
  * @author SmylerMC
@@ -97,8 +97,8 @@ public class TiledMap<T extends RasterWebTile> {
 	
 	
 	public T getTileAt(long x, long y, int zoom) {
-		long tileX = MapboxUtils.getTileXAt(x);
-		long tileY = MapboxUtils.getTileYAt(y);
+		long tileX = WebMercatorUtils.getTileXAt(x);
+		long tileY = WebMercatorUtils.getTileYAt(y);
 		return this.getTile(tileX, tileY, zoom);
 	}
 	
@@ -114,16 +114,16 @@ public class TiledMap<T extends RasterWebTile> {
 	
 	
 	public long getSizeInTiles(){
-		return MapboxUtils.getDimensionsInTile(this.zoomLevel);
+		return WebMercatorUtils.getDimensionsInTile(this.zoomLevel);
 	}
 	
 	public long getSizeInPixels(){
-		return MapboxUtils.getMapDimensionInPixel(this.zoomLevel);
+		return WebMercatorUtils.getMapDimensionInPixel(this.zoomLevel);
 	}
 	
 	public int[] getPixel(long x, long y) throws IOException, InvalidMapboxSessionException {
-		long tileX = MapboxUtils.getTileXAt(x);
-		long tileY = MapboxUtils.getTileYAt(y);
+		long tileX = WebMercatorUtils.getTileXAt(x);
+		long tileY = WebMercatorUtils.getTileYAt(y);
 		int tX = (int)(x % 256), tY = (int)(y % 256);
 		return this.getTile(tileX, tileY).getPixel(tX, tY);
 	}

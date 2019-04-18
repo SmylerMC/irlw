@@ -23,7 +23,6 @@ package org.framagit.smylermc.irlw.client.gui;
 import java.util.ArrayList;
 
 import org.framagit.smylermc.irlw.IRLW;
-import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
 import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 import org.framagit.smylermc.irlw.world.IRLWWorldData;
 
@@ -81,9 +80,9 @@ public final class DebugScreenHandler {
 			long deltaZ = data.getDeltaZ();
 			long playerMapX = player.getPosition().getX() + deltaX;
 			long playerMapZ = player.getPosition().getZ() + deltaZ;
-			if(MapboxUtils.isInWorld(playerMapX, playerMapZ, zoom)){
-				long tileX = MapboxUtils.getTileXAt((long) playerMapX );
-				long tileZ = MapboxUtils.getTileXAt((long) playerMapZ);
+			if(WebMercatorUtils.isInWorld(playerMapX, playerMapZ, zoom)){
+				long tileX = WebMercatorUtils.getTileXAt((long) playerMapX );
+				long tileZ = WebMercatorUtils.getTileXAt((long) playerMapZ);
 				double longitude = WebMercatorUtils.getLongitudeFromX(playerMapX, zoom);
 				double latitude = WebMercatorUtils.getLatitudeFromY(playerMapZ, zoom);
 				double factor = WebMercatorUtils.getSizeFactorFromLatitude(latitude, zoom);
