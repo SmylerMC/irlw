@@ -29,7 +29,7 @@ import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.caching.Cachable;
 import org.framagit.smylermc.irlw.maps.exceptions.InvalidMapboxSessionException;
 import org.framagit.smylermc.irlw.maps.utils.ImageUtils;
-import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
+import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -58,7 +58,7 @@ public abstract class RasterWebTile implements Cachable {
 		this.zoom = zoom;
 		this.size = size;
 
-		if(!MapboxUtils.isTileInWorld(x, y, zoom))
+		if(!WebMercatorUtils.isTileInWorld(x, y, zoom))
 			throw new InvalidTileCoordinatesException(this);
 
 	}

@@ -28,8 +28,6 @@ import java.net.URL;
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.exceptions.InvalidMapboxSessionException;
 
-import net.minecraft.util.math.BlockPos;
-
 
 /**
  * A set of methods to work with Mapbox maps
@@ -39,10 +37,6 @@ import net.minecraft.util.math.BlockPos;
  *
  */
 public class MapboxUtils {
-	
-	
-	/* Constants */
-	public static final int TILE_DIMENSIONS = 256;
 	
 	
 	/**
@@ -58,115 +52,7 @@ public class MapboxUtils {
 	}
 	
 	
-	/**
-	 * 
-	 * @param x
-	 * @param zoomLevel
-	 * @return the x coordinate of the tile at the given x position in the world, assuming map is scaled at zoom level zoomLevel
-	 */
-	public static long getTileXAt(long x){
-		return IRLWUtils.roudSmaller((float)x / MapboxUtils.TILE_DIMENSIONS);
-	}
 	
-	/**
-	 * 
-	 * @param y
-	 * @return the y coordinate of the tile at the given z position in the world, assuming map is scaled at zoom level zoomLevel
-	 */
-	public static long getTileYAt(long y){
-		return IRLWUtils.roudSmaller((float)y / MapboxUtils.TILE_DIMENSIONS);
-	}
-	
-	
-	/**
-	 * 
-	 * @param x
-	 * @param z
-	 * @param zoom
-	 * @return true if the block at the given x and z is on the real world scaled at zoom
-	 */
-	public static boolean isInWorld(long x, long z, int zoom){
-		long tX = getTileXAt(x);
-		long tY = getTileYAt(z);
-		int mS = 1 << zoom;
-		return tX >= 0 && tX < mS && tY >= 0 && tY < mS;
-	}
-	
-	
-	/**
-	 * 
-	 * @param x
-	 * @param z
-	 * @param zoom
-	 * @return true if the tile at given x and z is on the real world scaled at zoom
-	 */
-	public static boolean isTileInWorld(long tX, long tY, int zoom){
-		int mS = 1 << zoom;
-		return tX >= 0 && tX < mS && tY >= 0 && tY < mS;
-	}
-	
-	
-	/**
-	 * Simply translates the coordinates from a web map which as 0;0 on it upper left corner to a Minecraft world BlockPos,
-	 * considering Latitude 0 and Longitude 0 are at x=0 and z=0.
-	 * It basically just removes half of the map's size to x and y.
-	 * 
-	 * @param x The x coordinate of a pixel in a map
-	 * @param y The y coordinate of a pixel in a map
-	 * @param zoomLevel The web mercator zoom level of the map
-	 * @return a BlockPos object which x and z coordinates matches the translated x and y map coordinates to the world. The BlockPos y is always 0.
-	 */
-	public static BlockPos mapCoordinatesToWorld(long x, long y, int zoomLevel) {
-		return new BlockPos(mapCoordinatesToWorld(x, zoomLevel), mapCoordinatesToWorld(y, zoomLevel), 0);
-	}
-	
-	
-	/**
-	 * Simply translates the coordinates from a web map which as 0;0 on it upper left corner to a Minecraft world BlockPos,
-	 * considering Latitude 0 and Longitude 0 are at x=0 and z=0.
-	 * It basically just removes half of the map's size to x and y.
-	 * 
-	 * @param coordinate the coordinate to translate. The result is the same for x or y
-	 * @param zoomLevel The web mercator zoom level of the map
-	 * 
-	 * @return a BlockPos object which x and z coordinates matches the translated x and y map coordinates to the world. The BlockPos y is always 0.
-	 * 
-	 * @deprecated
-	 */
-	public static long mapCoordinatesToWorld(long coordinate,int zoomLevel) {
-		return coordinate - MapboxUtils.getMapDimensionInPixel(zoomLevel) / 2;
-	}
-	
-	
-	/**
-	 * Simply translates the coordinates from a web map which as 0;0 on it upper left corner to a Minecraft world BlockPos,
-	 * considering Latitude 0 and Longitude 0 are at x=0 and z=0.
-	 * It basically just removes half of the map's size to x and y.
-	 * 
-	 * @param x The x coordinate of a pixel in a map
-	 * @param y The y coordinate of a pixel in a map
-	 * @param zoomLevel The web mercator zoom level of the map
-	 * 
-	 * @return a BlockPos object which x and z coordinates matches the translated x and y map coordinates to the world. The BlockPos y is always 0.
-	 */
-	public static BlockPos mapCoordinatesToWorld(double x, double y, int zoomLevel) {
-		return new BlockPos(mapCoordinatesToWorld(x, zoomLevel), mapCoordinatesToWorld(y, zoomLevel), 0);
-	}
-	
-	
-	/**
-	 * Simply translates the coordinates from a web map which as 0;0 on it upper left corner to a Minecraft world BlockPos,
-	 * considering Latitude 0 and Longitude 0 are at x=0 and z=0.
-	 * It basically just removes half of the map's size to x and y.
-	 * 
-	 * @param coordinate the coordinate to translate. The result is the same for x or y
-	 * @param zoomLevel The web mercator zoom level of the map
-	 * 
-	 * @return a BlockPos object which x and z coordinates matches the translated x and y map coordinates to the world. The BlockPos y is always 0.
-	 */
-	public static double mapCoordinatesToWorld(double coordinate,int zoomLevel) {
-		return coordinate - MapboxUtils.getMapDimensionInPixel(zoomLevel) / 2;
-	}
 	
 	
 	/**
@@ -182,30 +68,6 @@ public class MapboxUtils {
 		if(response == HttpURLConnection.HTTP_UNAUTHORIZED) {
 			throw new InvalidMapboxSessionException();
 		}
-	}
-	
-	
-	/**
-	 * Returns the size of the map in pixel
-	 * 
-	 * @param zoomLvl the zoom level of the map to consider
-	 * 
-	 * @return The size of a side of the map, in pixel
-	 */
-	public static long getMapDimensionInPixel(int zoomLvl) {
-		return MapboxUtils.getDimensionsInTile(zoomLvl) * MapboxUtils.TILE_DIMENSIONS;
-	}
-	
-	
-	/**
-	 * Returns the length of a side of a map of the given  zoom level, in tile
-	 * It is simply 2 raised to the power of the zoom
-	 * 
-	 * @param zoomlvl the zoom level of the map to consider
-	 * @return 2^zoomlvl
-	 */
-	public static long getDimensionsInTile(int zoomlvl) {
-		return 1 << zoomlvl;
 	}
 	
 	

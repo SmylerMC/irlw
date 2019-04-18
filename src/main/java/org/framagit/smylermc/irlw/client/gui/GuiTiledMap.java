@@ -22,7 +22,6 @@ import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.TiledMap;
 import org.framagit.smylermc.irlw.maps.tiles.RasterWebTile;
 import org.framagit.smylermc.irlw.maps.utils.IRLWUtils;
-import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
 import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -87,7 +86,7 @@ public class GuiTiledMap extends GuiScreen{
 			IRLW.logger.info("Zooms are differents: GUI: " + this.zoomLevel + " | Map: " + this.map.getZoomLevel());
 		}
 		double renderFactor = this.getSizeFactor((int) this.zoomLevel);
-		int renderSize = (int) (renderFactor * MapboxUtils.TILE_DIMENSIONS);
+		int renderSize = (int) (renderFactor * WebMercatorUtils.TILE_DIMENSIONS);
 		
 		long upperLeftX = (long)(
 				(double)(WebMercatorUtils.getXFromLongitude(this.focusLongitude, (int)this.zoomLevel))
@@ -301,7 +300,7 @@ public class GuiTiledMap extends GuiScreen{
     	this.focusLongitude = 0;
     	this.focusLatitude = 0;
     	
-    	this.setZoom((float) (Math.log(this.height * this.GUI_SIZING / MapboxUtils.TILE_DIMENSIONS) / Math.log(2)));
+    	this.setZoom((float) (Math.log(this.height * this.GUI_SIZING / WebMercatorUtils.TILE_DIMENSIONS) / Math.log(2)));
     }
     
     private void setTiledMapZoom() {
@@ -321,7 +320,7 @@ public class GuiTiledMap extends GuiScreen{
     
     private long getMaxMapSize(int zoom) {
     	//TODO May overflow ?
-    	return (long) (MapboxUtils.getDimensionsInTile(zoom) * this.getSizeFactor(zoom) * MapboxUtils.TILE_DIMENSIONS); //TODO Adapt according to Minecraft's GUI sizing setting
+    	return (long) (WebMercatorUtils.getDimensionsInTile(zoom) * this.getSizeFactor(zoom) * WebMercatorUtils.TILE_DIMENSIONS); //TODO Adapt according to Minecraft's GUI sizing setting
     }
     
     /* === Getters and Setters from this point === */
