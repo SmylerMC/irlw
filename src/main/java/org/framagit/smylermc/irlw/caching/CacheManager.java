@@ -32,6 +32,7 @@ import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.exceptions.InvalidMapboxSessionException;
 import org.framagit.smylermc.irlw.maps.tiles.RasterWebTile;
 import org.framagit.smylermc.irlw.maps.tiles.tiles.MapboxWebTile;
+import org.framagit.smylermc.irlw.maps.tiles.tiles.VoidTile;
 import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
 
 import com.google.common.io.Files;
@@ -243,6 +244,8 @@ public class CacheManager implements Runnable {
 	 * @param toCache
 	 */
 	public void cacheAsync(Cachable toCache) {
+		if(toCache.getURL() == null) return;
+		
 		synchronized(this.toCacheAsync) {
 			this.toCacheAsync.add(toCache);
 		}
@@ -260,6 +263,9 @@ public class CacheManager implements Runnable {
 	 * @return true if the given resource has been cached already
 	 */
 	public boolean isCached(Cachable c) {
+		
+		if(c.getURL() == null) return false; //Only cachable that does not need to be cached
+		
 		File f = this.getCachableFile(c);
 		return f.exists() && f.isFile() && !c.equals(this.currentlyCachedByWorker);
 	}
@@ -307,6 +313,9 @@ public class CacheManager implements Runnable {
 	}
 	
 	public boolean isBeingCached(Cachable c) {
+		
+		if( c.getURL() == null) return false; //No need to cache that
+		
 		if(c.equals(this.currentlyCachedByWorker))
 			return true;
 		synchronized(this.toCacheAsync) {

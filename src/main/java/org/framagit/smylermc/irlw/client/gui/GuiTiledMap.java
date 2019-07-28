@@ -21,6 +21,8 @@ package org.framagit.smylermc.irlw.client.gui;
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.TiledMap;
 import org.framagit.smylermc.irlw.maps.tiles.RasterWebTile;
+import org.framagit.smylermc.irlw.maps.tiles.RasterWebTile.InvalidTileCoordinatesException;
+import org.framagit.smylermc.irlw.maps.tiles.tiles.VoidTile;
 import org.framagit.smylermc.irlw.maps.utils.IRLWUtils;
 import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 import org.lwjgl.input.Keyboard;
@@ -37,26 +39,30 @@ import net.minecraft.client.renderer.texture.TextureManager;
  */
 public class GuiTiledMap extends GuiScreen{
 	
+	//A multiplier to use when scaling the textures
+	private final float GUI_SIZING = 3; //TODO
 
-	/*
-	 * The position of the map on the GUI
-	 */
-	
-	private final float GUI_SIZING = 3;
+	//The position of the map on the GUI
 	protected int x;
 	protected int y;
 	
+	//Rendering switches
 	protected boolean visible;
 	protected boolean hovered;
 	
+	//The map we are rendering
 	protected TiledMap<?> map;
 	
-	protected double focusLatitude;
+	//The coordinates of the center of the map
+	protected double focusLatitude; 
 	protected double focusLongitude;
-	protected boolean debug = false; //Show tiles borders or not
+	
+	//Whether to show tiles borders or not
+	protected boolean debug = false;
 	
 	protected double zoomLevel;
 	protected double zoomMotion = 0;
+	
 	
 	public GuiTiledMap(TiledMap<?> map) {
 		this.visible = true;
@@ -81,13 +87,22 @@ public class GuiTiledMap extends GuiScreen{
     
 	//FIXME Zooming to much kills it
 	public void draw() {
-
+		
+		//Input Handling
+		//TODO handle keyboard input in a method
+		this.handleMouseInput();
+		if(Keyboard.isKeyDown(Keyboard.KEY_L)) {
+			this.debug = !this.debug;
+		}
+		
+		//TODO What is this for? Spamming the logs?
 		if((int)this.zoomLevel != this.map.getZoomLevel()) {
 			IRLW.logger.info("Zooms are differents: GUI: " + this.zoomLevel + " | Map: " + this.map.getZoomLevel());
 		}
-		double renderFactor = this.getSizeFactor((int) this.zoomLevel);
-		int renderSize = (int) (renderFactor * WebMercatorUtils.TILE_DIMENSIONS);
 		
+		//Compute various values used when rendering
+		double renderFactor = this.getSizeFactor();
+		int renderSize = (int) (renderFactor * WebMercatorUtils.TILE_DIMENSIONS);
 		long upperLeftX = (long)(
 				(double)(WebMercatorUtils.getXFromLongitude(this.focusLongitude, (int)this.zoomLevel))
 				* renderFactor
@@ -96,35 +111,31 @@ public class GuiTiledMap extends GuiScreen{
 				(double)WebMercatorUtils.getYFromLatitude(this.focusLatitude, (int)this.zoomLevel)
 				* renderFactor
 				- (double)this.height / 2f);
-		
-		//TODO handle keybord input in a method
-		this.handleMouseInput();
-		
-		if(Keyboard.isKeyDown(Keyboard.KEY_L)) {
-			this.debug = !this.debug;
-		}
-
-		Minecraft mc = Minecraft.getMinecraft();
-		TextureManager textureManager = mc.getTextureManager();
-
 		int maxTileXY = (int) map.getSizeInTiles();
 		long maxX = upperLeftX + this.width;
 		long maxY = upperLeftY + this.height;
+		int lowerTX = IRLWUtils.roundSmaller((double)upperLeftX / (double)renderSize);
+		int lowerTY = IRLWUtils.roundSmaller((double)upperLeftY / (double)renderSize);
+		
+		//Get ready for main rendering loop
+		Minecraft mc = Minecraft.getMinecraft();
+		TextureManager textureManager = mc.getTextureManager();
 
-		int lowerTX = IRLWUtils.roudSmaller((double)upperLeftX / (double)renderSize);
-		int lowerTY = IRLWUtils.roudSmaller((double)upperLeftY / (double)renderSize);
-
+		//For each tile spot on the screen:
 		for(int tX = lowerTX; tX * renderSize < maxX; tX++) {
-			
 			for(int tY = lowerTY; tY * renderSize < maxY; tY++) {
 
-				RasterWebTile tile = map.getTile(IRLWUtils.modulus(tX, maxTileXY), tY, (int) this.zoomLevel);
-				//This is the tile we would like to render, but it is not possible if it hasn't been cached yet
-				RasterWebTile bestTile = tile;
-				boolean lowerResRender = false;
+				//Select the tile object when are trying to render
+				RasterWebTile tile = new VoidTile();
+				try {
+					tile = map.getTile(IRLWUtils.modulus(tX, maxTileXY), tY, (int) this.zoomLevel);
+				}catch(InvalidTileCoordinatesException e) {
+				}
+				boolean lowerResRender = !IRLW.cacheManager.isCached(tile); //Has it been cached?
+				RasterWebTile bestTile = tile; //Keep a copy of it even when rendering lower res tiles
 				
-				if(!IRLW.cacheManager.isCached(tile)) {
-					lowerResRender = true;
+				//Tell the CacheManager to do its job if needed
+				if(lowerResRender) {
 					if(!IRLW.cacheManager.isBeingCached(tile))
 						IRLW.cacheManager.cacheAsync(tile);
 					while(tile.getZoom() > 0 && !IRLW.cacheManager.isCached(tile)) {
@@ -132,17 +143,16 @@ public class GuiTiledMap extends GuiScreen{
 					}
 				}
 				
+				//Compute where the tile go on the screen
 				int dispX = Math.round(this.x + tX * renderSize - upperLeftX);
 				int displayWidth = (int) Math.min(renderSize, maxX - tX * renderSize);
-
-				int displayHeight = (int) Math.min(renderSize, maxY - tY * renderSize);
 				int dispY = Math.round(this.y + tY * renderSize - upperLeftY);
+				int displayHeight = (int) Math.min(renderSize, maxY - tY * renderSize);
 				
+				//Compute the part of the tile's texture to render
 				int renderSizedSize = renderSize;
-				
 				int dX = 0;
 				int dY = 0;
-				
 				if(lowerResRender) {
 					int sizeFactor = (1 <<(bestTile.getZoom() - tile.getZoom()));
 					
@@ -155,17 +165,18 @@ public class GuiTiledMap extends GuiScreen{
 					dX += (int) (factorX * renderSizedSize);
 					dY += (int) (factorY * renderSizedSize);
 				}
-
-				if(tX == lowerTX) {
+				if(tX == lowerTX) { //Remove the left side of the tiles on the left
 					dX += this.x-dispX;
 					dispX = this.x;
 				}
-
-				if(tY == lowerTY) {
+				if(tY == lowerTY) { //Remove the upper side of the tiles on the top
 					dY += this.y-dispY;
 					dispY = this.y;
 				}
+				
+				//TODO Remove the right and bottom tiles
 
+				//Render the tile
 				textureManager.bindTexture(tile.getTexture());
 				drawModalRectWithCustomSizedTexture(
 						dispX,
@@ -176,6 +187,7 @@ public class GuiTiledMap extends GuiScreen{
 						renderSizedSize,
 						renderSizedSize);
 				
+				//Draw additional debug information
 				if(this.debug) {
 					final int RED = 0xFFFF0000;
 					final int WHITE = 0xFFFFFFFF;
@@ -228,37 +240,49 @@ public class GuiTiledMap extends GuiScreen{
      */
 	@Override
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick){
-    	IRLW.logger.info("click move");
+    	IRLW.logger.info("click move");  //TODO Remove useless log
     }
 				
+	public float getMouseLongitude() {
+		//TODO
+		return 0f;
+	}
+	
+	public float getMouseLatitude() {
+		//TODO
+		return 0f;
+	}
 	
     /**
      * Handles mouse input.
      */
     public void handleMouseInput(){
     	
+    	//TODO Make sure the mouse is within the map first
+    	
     	//Moving
     	if(Mouse.isButtonDown(0)) {
     		
-    		//TODO This should adapt to the zoom level
     		int dX = Mouse.getDX();
     		int dY = Mouse.getDY();
     		
+    		//TODO Take the mercator projection into account
     		this.setPosition(
-    				this.focusLongitude - dX/Math.pow(2, this.zoomLevel) * this.GUI_SIZING/2,
-    				this.focusLatitude - dY/Math.pow(2, this.zoomLevel) * this.GUI_SIZING/2);
+    				this.focusLongitude - dX/Math.pow(2, this.zoomLevel) * this.GUI_SIZING,
+    				this.focusLatitude - dY/Math.pow(2, this.zoomLevel) * this.GUI_SIZING);
     	}
     	
     	//Scrolling
         int i = Mouse.getDWheel();
-        float z;
+        int z;
         if (i != 0){
         	
-            if (i > 0) z = 0.1f;
-            else z = -0.1f;
-
-            this.zoomMotion += z * 5;
-            this.zoom(z * 10);
+            if (i > 0) z = 1;
+            else z = -1;
+            
+            //TODO remove zoom motion
+            
+            this.zoom(z);
         }
     }
     
@@ -295,32 +319,28 @@ public class GuiTiledMap extends GuiScreen{
     }
     
 
+    /**
+     * Set the zoom to the minimum zoom possible while making sure the map is still scaled so it fills the screen
+     */
     public void setZoomToMinimum() {
-    	
     	this.focusLongitude = 0;
     	this.focusLatitude = 0;
-    	
-    	this.setZoom((float) (Math.log(this.height * this.GUI_SIZING / WebMercatorUtils.TILE_DIMENSIONS) / Math.log(2)));
+    	this.setZoom(0);
+    	this.setZoom(Math.max(0, (float) (Math.log(this.height * this.GUI_SIZING / WebMercatorUtils.TILE_DIMENSIONS) / Math.log(2))));
     }
     
     private void setTiledMapZoom() {
     	this.map.setZoomLevel((int)this.zoomLevel);
     }
     
-    private double getSizeFactor(double mapZoom, int tileZoom) {
-    	//TODO WIP, Math.pow and double are not precise enough
-    	return 1f/this.GUI_SIZING;
-    	//return (Math.pow(2, mapZoom - tileZoom) / this.GUI_SIZING);
-    	//return (Math.pow(2, mapZoom));
-    }
-    
-    private double getSizeFactor(int tileZoom) {
-    	return this.getSizeFactor(this.zoomLevel, tileZoom);     
+    //TODO this is a mess
+    private double getSizeFactor() {
+    	return 1 / this.GUI_SIZING;
     }
     
     private long getMaxMapSize(int zoom) {
     	//TODO May overflow ?
-    	return (long) (WebMercatorUtils.getDimensionsInTile(zoom) * this.getSizeFactor(zoom) * WebMercatorUtils.TILE_DIMENSIONS); //TODO Adapt according to Minecraft's GUI sizing setting
+    	return (long) (WebMercatorUtils.getDimensionsInTile(zoom) * this.getSizeFactor() * WebMercatorUtils.TILE_DIMENSIONS); //TODO Adapt according to Minecraft's GUI sizing setting
     }
     
     /* === Getters and Setters from this point === */

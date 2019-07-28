@@ -59,7 +59,7 @@ public abstract class RasterWebTile implements Cachable {
 		this.size = size;
 
 		if(!WebMercatorUtils.isTileInWorld(x, y, zoom))
-			throw new InvalidTileCoordinatesException(this);
+			throw new InvalidTileCoordinatesException(this); //FIXME Triggers when rendering tiled maps
 
 	}
 

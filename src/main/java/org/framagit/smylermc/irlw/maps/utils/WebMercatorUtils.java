@@ -175,7 +175,7 @@ public class WebMercatorUtils {
 	 * @return the x coordinate of the tile at the given x position in the world, assuming map is scaled at zoom level zoomLevel
 	 */
 	public static long getTileXAt(long x){
-		return IRLWUtils.roudSmaller((float)x / WebMercatorUtils.TILE_DIMENSIONS);
+		return IRLWUtils.roundSmaller((float)x / WebMercatorUtils.TILE_DIMENSIONS);
 	}
 	
 	/**
@@ -184,7 +184,7 @@ public class WebMercatorUtils {
 	 * @return the y coordinate of the tile at the given z position in the world, assuming map is scaled at zoom level zoomLevel
 	 */
 	public static long getTileYAt(long y){
-		return IRLWUtils.roudSmaller((float)y / WebMercatorUtils.TILE_DIMENSIONS);
+		return IRLWUtils.roundSmaller((float)y / WebMercatorUtils.TILE_DIMENSIONS);
 	}
 	
 	

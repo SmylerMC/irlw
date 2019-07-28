@@ -44,9 +44,7 @@ public class GuiScreenPickLocation extends GuiScreen {
 	private final int QUIT_ID = 0;
 	
 	public GuiScreenPickLocation(GuiScreen parent) {
-		//this.map = new GuiTiledMap(new TiledMap<WikimediaTile>(TileFactory.WIKIMEDIA_TILE_FACTORY));
 		this.map = new GuiTiledMap(new TiledMap<MapboxSatelliteTile>(TileFactory.MAPBOX_SATELLITE_TILE_FACTORY));
-		this.map.zoomLevel = 4;
 		this.parent = parent;
 	}
 	
@@ -60,9 +58,11 @@ public class GuiScreenPickLocation extends GuiScreen {
 	@Override
 	public void initGui(){
 		this.map.setGuiSize(this.width, this.height);
-		if(this.map.zoomLevel != 0) {
+		//this.map.setGuiSize(250, 200); //TODO
+		//this.map.initGui();
+		//if(this.map.zoomLevel != 0) {
 			this.map.setZoomToMinimum();
-		}
+		//} //TODO TEMPS DEBUG
 		this.addButton(new GuiButton(QUIT_ID , 0, 0, "Quit")); //TODO Localization
 	}
 	

@@ -38,7 +38,7 @@ public class IRLWUtils {
 	 * @param x
 	 * @return The integer just before x
 	 */
-	public static int roudSmaller(float x){
+	public static int roundSmaller(float x){
 		return x >= 0? (int) x: (int) x - 1;
 	}
 	
@@ -47,7 +47,7 @@ public class IRLWUtils {
 	 * @param x
 	 * @return The integer just before x
 	 */
-	public static int roudSmaller(double x){
+	public static int roundSmaller(double x){
 		return x >= 0? (int) x: (int) x - 1;
 	}
 	
