@@ -23,11 +23,11 @@ package org.framagit.smylermc.irlw.client.events;
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.IRLWConfiguration;
 import org.framagit.smylermc.irlw.client.gui.DebugScreenHandler;
-import org.framagit.smylermc.irlw.client.gui.GuiInvalidTokenPrompt;
+import org.framagit.smylermc.irlw.client.gui.InvalidTokenPromptScreen;
 import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiWorldSelection;
+import net.minecraft.client.gui.screen.WorldSelectionScreen;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -54,7 +54,7 @@ public class IRLWClientEventHandler {
 	 */
 	@SubscribeEvent
 	public static void onRenderGameOverlayText(RenderGameOverlayEvent.Text event){
-		if(Minecraft.getMinecraft().gameSettings.showDebugInfo){
+		if(Minecraft.getInstance().gameSettings.showDebugInfo){
 			event.getLeft().addAll(DEBUG.getLeft());
 			event.getRight().addAll(DEBUG.getRight());
 		}
@@ -64,10 +64,10 @@ public class IRLWClientEventHandler {
 	@SubscribeEvent
 	public static void onGuiPostInit(GuiScreenEvent.InitGuiEvent.Post event) {
 		if(		!IRLWConfiguration.ignoreInvalidTokens
-				&& event.getGui() instanceof GuiWorldSelection
+				&& event.getGui() instanceof WorldSelectionScreen
 				&& !MapboxUtils.checkToken(IRLWConfiguration.mapboxToken)) {
 			IRLW.logger.info("Token is invalid, prompting for a valid token.");
-			Minecraft.getMinecraft().displayGuiScreen(new GuiInvalidTokenPrompt(event.getGui()));
+			Minecraft.getInstance().displayGuiScreen(new InvalidTokenPromptScreen(event.getGui()));
 		}
 	}
 }
