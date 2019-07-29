@@ -27,8 +27,9 @@ import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 import org.framagit.smylermc.irlw.world.IRLWWorldData;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
 
@@ -54,7 +55,7 @@ public final class DebugScreenHandler {
 	 */
 	public ArrayList<String> getRight(){
 		ArrayList<String> list = new ArrayList<String>();
-		if(! Minecraft.getMinecraft().world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)){
+		if(! Minecraft.getInstance().world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)){
 			return list;
 		}
 		return list;
@@ -69,12 +70,12 @@ public final class DebugScreenHandler {
 		ArrayList<String> list = new ArrayList<String>();
 		try{
 			//TODO
-			World world = Minecraft.getMinecraft().world;
-			if((!world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)) || world.getGameRules().getBoolean("reducedDebugInfo")) //TODO The gamerules doesn't seem to be sync :(
+			World world = Minecraft.getInstance().world;
+			if((!world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)) || world.getGameRules().getBoolean(GameRules.REDUCED_DEBUG_INFO)) //TODO The gamerules doesn't seem to be sync :(
 				return list;
 			list.add("");
-			EntityPlayerSP player = Minecraft.getMinecraft().player;
-			IRLWWorldData data = (IRLWWorldData)world.loadData(IRLWWorldData.class, IRLWWorldData.IRLW_DATA);
+			ClientPlayerEntity player = Minecraft.getInstance().player;
+			IRLWWorldData data = (IRLWWorldData)world.func_217406_a(IRLWWorldData.IRLW_DATA); // func_217406_a is getMapData
 			int zoom = data.getZoomLevel();
 			long deltaX = data.getDeltaX();
 			long deltaZ = data.getDeltaZ();
@@ -94,7 +95,7 @@ public final class DebugScreenHandler {
 			}else{
 				list.add(PREFIX + "Mercator zoom: " + zoom + ";" + TextFormatting.YELLOW + " You are outside the world." + TextFormatting.RESET);
 			}
-			if(Minecraft.getMinecraft().isIntegratedServerRunning())
+			if(Minecraft.getInstance().isIntegratedServerRunning())
 				list.add(PREFIX + "Cacher queue size: " + IRLW.cacheManager.getQueueSize());
 		}catch(Exception e){
 			list.add(PREFIX + TextFormatting.RED + "IRLW can't display its debug information because of an internal error." + TextFormatting.RESET);

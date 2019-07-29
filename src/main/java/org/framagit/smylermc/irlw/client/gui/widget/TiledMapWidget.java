@@ -16,7 +16,7 @@
 
 	The author can be contacted at smyler@mail.com
 */
-package org.framagit.smylermc.irlw.client.gui;
+package org.framagit.smylermc.irlw.client.gui.widget;
 
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.TiledMap;
@@ -25,30 +25,21 @@ import org.framagit.smylermc.irlw.maps.tiles.RasterWebTile.InvalidTileCoordinate
 import org.framagit.smylermc.irlw.maps.tiles.tiles.VoidTile;
 import org.framagit.smylermc.irlw.maps.utils.IRLWUtils;
 import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.renderer.texture.TextureManager;
 
 /**
  * @author Smyler
  *
  */
-public class GuiTiledMap extends GuiScreen{
+public class TiledMapWidget extends Widget{
 	
 	//A multiplier to use when scaling the textures
 	private final float GUI_SIZING = 3; //TODO
-
-	//The position of the map on the GUI
-	protected int x;
-	protected int y;
-	
-	//Rendering switches
-	protected boolean visible;
-	protected boolean hovered;
 	
 	//The map we are rendering
 	protected TiledMap<?> map;
@@ -64,36 +55,23 @@ public class GuiTiledMap extends GuiScreen{
 	protected double zoomMotion = 0;
 	
 	
-	public GuiTiledMap(TiledMap<?> map) {
-		this.visible = true;
-		this.hovered = false;
+	public TiledMapWidget(int x, int y, int width, int height, String message, TiledMap<?> map) {
+		super(x, y, width, height, message);
 		this.map = map;
 		this.zoomLevel = map.getZoomLevel();
 		this.focusLatitude = 0;
 		this.focusLongitude = 0;
 	}
-	
-	@Override
-	public void initGui() {
-		this.initGui(0, 0, 500, 500); //TODO maybe have a look at minecraft's window's size
-	}
-	
-	public void initGui(int x, int y, int width, int height) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-	}
     
 	//FIXME Zooming to much kills it
-	public void draw() {
+	@Override
+	public void renderButton(int mouseX, int mouseY, float partialTricks) {
 		
 		//Input Handling
-		//TODO handle keyboard input in a method
-		this.handleMouseInput();
-		if(Keyboard.isKeyDown(Keyboard.KEY_L)) {
-			this.debug = !this.debug;
-		}
+		//FIXME 1.14.4 - handle keyboard input in a method
+//		if(Keyboard.isKeyDown(Keyboard.KEY_L)) {
+//			this.debug = !this.debug;
+//		}
 		
 		//TODO What is this for? Spamming the logs?
 		if((int)this.zoomLevel != this.map.getZoomLevel()) {
@@ -118,7 +96,7 @@ public class GuiTiledMap extends GuiScreen{
 		int lowerTY = IRLWUtils.roundSmaller((double)upperLeftY / (double)renderSize);
 		
 		//Get ready for main rendering loop
-		Minecraft mc = Minecraft.getMinecraft();
+		Minecraft mc = Minecraft.getInstance();
 		TextureManager textureManager = mc.getTextureManager();
 
 		//For each tile spot on the screen:
@@ -178,7 +156,7 @@ public class GuiTiledMap extends GuiScreen{
 
 				//Render the tile
 				textureManager.bindTexture(tile.getTexture());
-				drawModalRectWithCustomSizedTexture(
+				Widget.blit(
 						dispX,
 						dispY,
 						dX, dY,
@@ -191,44 +169,33 @@ public class GuiTiledMap extends GuiScreen{
 				if(this.debug) {
 					final int RED = 0xFFFF0000;
 					final int WHITE = 0xFFFFFFFF;
-					this.drawHorizontalLine(
+					this.hLine(
 							dispX,
 							dispX + displayWidth - 1,
 							dispY,
 							lowerResRender? RED : WHITE);
-					this.drawHorizontalLine(
+					this.hLine(
 							dispX,
 							dispX + displayWidth - 1,
 							dispY + displayHeight - 1,
 							lowerResRender? RED : WHITE);
-					this.drawVerticalLine(
+					this.vLine(
 							dispX,
 							dispY,
 							dispY + displayHeight - 1,
 							lowerResRender? RED : WHITE);
-					this.drawVerticalLine(
+					this.vLine(
 							dispX + displayWidth - 1,
 							dispY,
 							dispY + displayHeight - 1,
 							lowerResRender? RED : WHITE);
 				}
-				GlStateManager.color(255, 255, 255, 255);
+				GlStateManager.color4f(255, 255, 255, 255);
 
 				
 			}
 			
 		}
-		
-	}
-	
-	
-	@Override
-    public void updateScreen(){
-		
-		//TODO WIP
-		//handle zooming
-		//this.zoom(this.zoomMotion);
-		this.zoomMotion /= 1.75;
 		
 	}
     
@@ -239,8 +206,9 @@ public class GuiTiledMap extends GuiScreen{
      * lastButtonClicked & timeSinceMouseClick.
      */
 	@Override
-    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick){
+    protected void onDrag(double p1, double p2, double p3, double p4){ //TODO 1.14.4 - Make sure this parameters are what they seem to be
     	IRLW.logger.info("click move");  //TODO Remove useless log
+    	super.onDrag(p1, p2, p3, p4);
     }
 				
 	public float getMouseLongitude() {
@@ -253,39 +221,40 @@ public class GuiTiledMap extends GuiScreen{
 		return 0f;
 	}
 	
-    /**
-     * Handles mouse input.
-     */
-    public void handleMouseInput(){
-    	
-    	//TODO Make sure the mouse is within the map first
-    	
-    	//Moving
-    	if(Mouse.isButtonDown(0)) {
-    		
-    		int dX = Mouse.getDX();
-    		int dY = Mouse.getDY();
-    		
-    		//TODO Take the mercator projection into account
-    		this.setPosition(
-    				this.focusLongitude - dX/Math.pow(2, this.zoomLevel) * this.GUI_SIZING,
-    				this.focusLatitude - dY/Math.pow(2, this.zoomLevel) * this.GUI_SIZING);
-    	}
-    	
-    	//Scrolling
-        int i = Mouse.getDWheel();
-        int z;
-        if (i != 0){
-        	
-            if (i > 0) z = 1;
-            else z = -1;
-            
-            //TODO remove zoom motion
-            
-            this.zoom(z);
-        }
-    }
-    
+//FIXME 1.14.4 - Use the provided widget methods to handle keyboard and mouse input in TiledMap	
+//    /**
+//     * Handles mouse input.
+//     */
+//    public void handleMouseInput(){
+//    	
+//    	//TODO Make sure the mouse is within the map first
+//    	
+//    	//Moving
+//    	if(Mouse.isButtonDown(0)) {
+//    		
+//    		int dX = Mouse.getDX();
+//    		int dY = Mouse.getDY();
+//    		
+//    		//TODO Take the mercator projection into account
+//    		this.setPosition(
+//    				this.focusLongitude - dX/Math.pow(2, this.zoomLevel) * this.GUI_SIZING,
+//    				this.focusLatitude - dY/Math.pow(2, this.zoomLevel) * this.GUI_SIZING);
+//    	}
+//    	
+//    	//Scrolling
+//        int i = Mouse.getDWheel();
+//        int z;
+//        if (i != 0){
+//        	
+//            if (i > 0) z = 1;
+//            else z = -1;
+//            
+//            //TODO remove zoom motion
+//            
+//            this.zoom(z);
+//        }
+//    }
+//    
     public void zoom(double val) {
     	
     	double nzoom = this.zoomLevel + val;

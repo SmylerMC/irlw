@@ -18,14 +18,15 @@
 
 	File created on 8 avr. 2018 
 */
-package org.framagit.smylermc.irlw.client.gui;
+package org.framagit.smylermc.irlw.client.gui.widget;
 
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 
@@ -35,26 +36,29 @@ import net.minecraft.util.ResourceLocation;
  * A simple squared map, which can display a pointer
  *
  */
-public class GuiSimpleMap extends Gui {
+public class SimpleMapWidget extends Widget {
 
 	private int x, y, size, px = 0, py = 0, pcolor;
 	public boolean showPointer = false;
 	
-	public GuiSimpleMap(int x, int y, int size) {
-		this.x = x;
-		this.y = y;
+	public SimpleMapWidget(int x, int y, int size) {
+		super(x, y, size, size, ""); //TODO 1.14.4 - message text Localization for SimpleMapWidget constructor
 		this.pcolor = 0xFF0000;
 		this.size = size;
 	}
 	
-	public void draw() {
-		Gui.drawRect(this.x - 1, this.y - 1, this.x + this.size + 1, this.y + this.size + 1, 0xFF000000);
-		GlStateManager.color(255, 255, 255, 255);
-		TextureManager m = Minecraft.getMinecraft().getTextureManager();
+	@Override
+	public void renderButton(int mouseX, int mouseY, float partialTricks) {
+		
+		if(!this.visible) return;
+		
+		Widget.fill(this.x - 1, this.y - 1, this.x + this.size + 1, this.y + this.size + 1, 0xFF000000);
+		GlStateManager.color4f(255, 255, 255, 255);
+		TextureManager m = Minecraft.getInstance().getTextureManager();
 		m.bindTexture(new ResourceLocation(IRLW.MOD_ID, "textures/gui/worldmap.png"));
-		Gui.drawModalRectWithCustomSizedTexture(this.x, this.y, 0, 0, this.size, this.size, this.size, this.size);
-		if(showPointer) {
-			Gui.drawRect(this.x + this.px - 2, this.y + this.py - 2, this.x + this.px + 1, this.y + this.py + 1, this.pcolor);
+		Widget.blit(this.x, this.y, 0, 0, this.size, this.size, this.size, this.size);
+		if(this.showPointer) {
+			Widget.fill(this.x + this.px - 2, this.y + this.py - 2, this.x + this.px + 1, this.y + this.py + 1, this.pcolor);
 		}
 	}
 	

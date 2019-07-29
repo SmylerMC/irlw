@@ -32,7 +32,6 @@ import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.exceptions.InvalidMapboxSessionException;
 import org.framagit.smylermc.irlw.maps.tiles.RasterWebTile;
 import org.framagit.smylermc.irlw.maps.tiles.tiles.MapboxWebTile;
-import org.framagit.smylermc.irlw.maps.tiles.tiles.VoidTile;
 import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
 
 import com.google.common.io.Files;

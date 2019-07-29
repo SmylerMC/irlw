@@ -20,6 +20,8 @@
 
 package org.framagit.smylermc.irlw.world;
 
+import javax.xml.ws.handler.MessageContext;
+
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.world.gen.IRLWChunkGenerator;
 
@@ -28,13 +30,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkProviderServer;
-import net.minecraft.world.storage.WorldSavedData;
+import net.minecraft.world.storage.MapData;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-
-public class IRLWWorldData extends WorldSavedData implements IMessage{
+public class IRLWWorldData extends MapData implements IMessage{
 	
 	
 	//Because only one of this should be saved by world, this is the ID it has to use
