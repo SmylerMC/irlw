@@ -18,12 +18,10 @@
  */
 package org.framagit.smylermc.irlw.maps.tiles;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-
-import javax.imageio.ImageIO;
 
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.caching.Cachable;
@@ -33,6 +31,7 @@ import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 
@@ -47,7 +46,7 @@ public abstract class RasterWebTile implements Cachable {
 	protected int zoom;
 	protected int[] defaultPixel = {0, 0, 0, 0}; //What to return when the tile doesn't exist but should
 	protected int size;
-	protected BufferedImage image;
+	protected NativeImage image;
 	protected ResourceLocation texture = null;
 	
 
@@ -82,7 +81,7 @@ public abstract class RasterWebTile implements Cachable {
 	}
 
 
-	public BufferedImage getImage() throws IOException, InvalidMapboxSessionException {
+	public NativeImage getImage() throws IOException, InvalidMapboxSessionException {
 		if(this.image == null) {
 			File f = IRLW.cacheManager.getFile(this);
 
@@ -107,9 +106,10 @@ public abstract class RasterWebTile implements Cachable {
 
 	private void loadImageFomFile(File f) throws IOException {
 		if(!f.exists() || !f.isFile()) {
-			this.image = ImageUtils.imageFromColor(this.size, this.size, this.defaultPixel);
+//			this.image = ImageUtils.imageFromColor(this.size, this.size, this.defaultPixel);
+			this.image = new NativeImage(this.size, this.size, true); //TODO 1.14.4 - Set the color!
 		} else {
-			this.image = ImageIO.read(f);
+			this.image = NativeImage.read(new FileInputStream(f)); //TODO 1.14.4 - Make sure this works, I'm not sure if that will read PNG correctly
 		}
 	}
 	/**
@@ -121,16 +121,16 @@ public abstract class RasterWebTile implements Cachable {
 	 * @throws IOException 
 	 */
 	public int[] getPixel(int x, int y) throws IOException, InvalidMapboxSessionException {
-		return ImageUtils.decodeRGBA2Array(this.getImage().getRGB(x, y));
+		return ImageUtils.decodeRGBA2Array(this.getImage().getPixelRGBA(x, y));
 	}
 
 	
 	public ResourceLocation getTexture() {
 		if(this.texture == null) {
-			Minecraft mc = Minecraft.getMinecraft();
+			Minecraft mc = Minecraft.getInstance();
 			TextureManager textureManager = mc.getTextureManager();
 			try {
-				BufferedImage image = this.getImage();
+				NativeImage image = this.getImage();
 				this.texture = textureManager.getDynamicTextureLocation("textures/gui/maps/" + this.x + "/" + this.y + "/" + this.zoom, new DynamicTexture(image));
 			} catch (IOException e) {
 				IRLW.logger.catching(e);
