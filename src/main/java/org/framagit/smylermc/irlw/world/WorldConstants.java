@@ -33,5 +33,8 @@ public abstract class WorldConstants {
 	 */
 	public static final int EARTH_RADIUS = 6371000;
 	
+	/**
+	 * Highest point on earth
+	 */
 	public final static int EVREST_ALTITUDE = 8848;
 }

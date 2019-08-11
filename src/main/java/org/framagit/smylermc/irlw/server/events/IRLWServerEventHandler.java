@@ -24,11 +24,11 @@ import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.network.IRLWPacketHandler;
 import org.framagit.smylermc.irlw.world.IRLWWorldData;
 
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 /**
@@ -48,7 +48,7 @@ public final class IRLWServerEventHandler {
 	@SubscribeEvent
 	public static void onPlayerJoinServer(PlayerLoggedInEvent event){
 		//Send world data to the client
-		EntityPlayerMP player = (EntityPlayerMP)event.player;
+		PlayerEntity player = (PlayerEntity)event.getPlayer();
 		World world = player.getEntityWorld();
 		if(world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)){
 			IMessage data = (IMessage) world.loadData(IRLWWorldData.class, IRLWWorldData.IRLW_DATA);

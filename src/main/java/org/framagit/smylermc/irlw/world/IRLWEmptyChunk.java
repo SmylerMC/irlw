@@ -23,7 +23,7 @@ package org.framagit.smylermc.irlw.world;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraft.world.gen.ChunkGenerator;
 
 /**
  * @author SmylerMC
@@ -81,8 +81,9 @@ public class IRLWEmptyChunk extends Chunk{
      * 
      */
     @Override
-    public void populate(IChunkProvider chunkProvider, IChunkGenerator chunkGenrator){}
+    public void populate(IChunkProvider chunkProvider, ChunkGenerator chunkGenrator){}
+    
     @Override
-    protected void populate(IChunkGenerator generator){}
+    protected void populate(ChunkGenerator generator){}
 
 }

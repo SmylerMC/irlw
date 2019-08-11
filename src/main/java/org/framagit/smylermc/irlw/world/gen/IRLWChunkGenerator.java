@@ -34,16 +34,19 @@ import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 import org.framagit.smylermc.irlw.world.IRLWEmptyChunk;
 import org.framagit.smylermc.irlw.world.WorldConstants;
 
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityClassification;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.gen.ChunkGeneratorOverworld;
-import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.Heightmap.Type;
+import net.minecraft.world.gen.OverworldChunkGenerator;
 
 /**
  * @author SmylerMC
@@ -51,7 +54,7 @@ import net.minecraft.world.gen.IChunkGenerator;
  * TODO Type comment
  *
  */
-public class IRLWChunkGenerator implements IChunkGenerator{
+public class IRLWChunkGenerator extends ChunkGenerator { //TODO Create IRLW Chunk generation Setting
 
 	private World world;
 	
@@ -62,7 +65,7 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	private int zoomLevel = 0;
 	private TiledMap<MapboxElevationTile> heightMap;
 	
-	private ChunkGeneratorOverworld overwoldGenerator;
+	private OverworldChunkGenerator overwoldGenerator;
 	
 	private final static int WATER_LEVEL = 63;
 	
@@ -72,6 +75,7 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	 * @param mapFeaturesEnabledIn
 	 * @param generatorOptions
 	 */
+	//TODO Update for new generation
 	public IRLWChunkGenerator(World worldIn, long seed, double centerLong, double centerLat, int zoomLevel) {
 		this.centerLat = centerLat;
 		this.centerLong = centerLong;
@@ -83,9 +87,10 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 		this.world = worldIn;
 		this.heightMap = new TiledMap<MapboxElevationTile>(TileFactory.MAPBOX_ELEVATION_TILE_FACTORY, this.zoomLevel);
 		this.heightMap.enableSmartLoading();
-		this.overwoldGenerator = new ChunkGeneratorOverworld(worldIn, seed, true, "");
+		this.overwoldGenerator = new OverworldChunkGenerator(worldIn, seed, true, "");
 	}
 	
+	//TODO Implement new generation system
 	@Override
 	public Chunk generateChunk(int x, int z) {
 		
@@ -157,41 +162,45 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 	}
 
 
-	@Override
-	public void populate(int x, int z) {
-			this.overwoldGenerator.populate(x, z);
-	}
+//TODO Update for new generation
+//	@Override
+//	public void populate(int x, int z) {
+//			this.overwoldGenerator.populate(x, z);
+//	}
+
+
+//TODO Update for new generation
+//	@Override
+//	public boolean generateStructures(Chunk chunkIn, int x, int z) {
+//		return this.overwoldGenerator.generateStructures(chunkIn, x, z); 
+//	}
 
 
 	@Override
-	public boolean generateStructures(Chunk chunkIn, int x, int z) {
-		return this.overwoldGenerator.generateStructures(chunkIn, x, z); 
-	}
-
-
-	@Override
-	public List<SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos) {
+	public List<SpawnListEntry> getPossibleCreatures(EntityClassification creatureType, BlockPos pos) {
 		return this.overwoldGenerator.getPossibleCreatures(creatureType, pos);
 	}
 
 
-	@Override
-	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position,
-			boolean findUnexplored) {
-		return this.overwoldGenerator.getNearestStructurePos(worldIn, structureName, position, findUnexplored);
-	}
+//TODO Update for new generation
+//	@Override
+//	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position,
+//			boolean findUnexplored) {
+//		return this.overwoldGenerator.getNearestStructurePos(worldIn, structureName, position, findUnexplored);
+//	}
 
 
-	@Override
-	public void recreateStructures(Chunk chunkIn, int x, int z) {
-		this.overwoldGenerator.recreateStructures(chunkIn, x, z);
-	}
+//TODO Update for new generation
+//	@Override
+//	public void recreateStructures(Chunk chunkIn, int x, int z) {
+//		this.overwoldGenerator.recreateStructures(chunkIn, x, z);
+//	}
 
-
-	@Override
-	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
-		return this.overwoldGenerator.isInsideStructure(worldIn, structureName, pos);
-	}
+//TODO Update for new generation
+//	@Override
+//	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
+//		return this.overwoldGenerator.isInsideStructure(worldIn, structureName, pos);
+//	}
 	
 	
 	/* Getters and Setters from there */
@@ -214,6 +223,30 @@ public class IRLWChunkGenerator implements IChunkGenerator{
 
 	public double getCenterLongitude() {
 		return this.centerLong;
+	}
+
+	@Override
+	public void generateSurface(IChunk chunkIn) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getGroundHeight() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void makeBase(IWorld worldIn, IChunk chunkIn) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int func_222529_a(int p_222529_1_, int p_222529_2_, Type p_222529_3_) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

@@ -29,7 +29,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.ChunkProviderServer;
+import net.minecraft.world.server.ServerChunkProvider;
 import net.minecraft.world.storage.MapData;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -159,8 +159,8 @@ public class IRLWWorldData extends MapData implements IMessage{
 		if(! world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)) {
 			return;
 		}
-		ChunkProviderServer provider = (ChunkProviderServer) world.getChunkProvider();
-		IRLWChunkGenerator generator = (IRLWChunkGenerator) provider.chunkGenerator;
+		ServerChunkProvider provider = (ServerChunkProvider) world.getChunkProvider();
+		IRLWChunkGenerator generator = (IRLWChunkGenerator) provider.generator;
 		IRLWWorldData data = new IRLWWorldData();
 		data.setCenterLongitude(generator.getCenterLongitude());
 		data.setCenterLatitude(generator.getCenterLatitude());

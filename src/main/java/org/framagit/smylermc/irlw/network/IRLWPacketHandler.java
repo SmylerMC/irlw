@@ -23,9 +23,7 @@ package org.framagit.smylermc.irlw.network;
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.world.IRLWWorldData;
 
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.network.NetworkRegistry;
 
 /**
  * The default 

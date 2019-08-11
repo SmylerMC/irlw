@@ -24,15 +24,14 @@ import java.util.List;
 
 import org.framagit.smylermc.irlw.world.IRLWEmptyChunk;
 
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityClassification;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.EmptyChunk;
-import net.minecraft.world.gen.IChunkGenerator;
 
 /**
  * @author SmylerMC
@@ -99,7 +98,7 @@ public class IRLWTestChunkGenerator implements IChunkGenerator{
 	}
 
 	@Override
-	public List<SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos) {
+	public List<SpawnListEntry> getPossibleCreatures(EntityClassification creatureType, BlockPos pos) {
 		// TODO Auto-generated method stub
 		return null;
 	}

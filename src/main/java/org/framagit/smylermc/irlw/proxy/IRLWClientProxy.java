@@ -22,13 +22,13 @@ import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.network.IRLWPacketHandler;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
@@ -77,21 +77,21 @@ public class IRLWClientProxy implements IRLWProxy {
 
 	@Override
 	public void stopServer() {
-		if(Minecraft.getMinecraft().getIntegratedServer().isServerRunning()) {
+		if(Minecraft.getInstance().getIntegratedServer().isServerRunning()) {
 			IRLW.logger.error("Trying to stop the integrated server");
-			Minecraft.getMinecraft().world.sendQuittingDisconnectingPacket();
+			Minecraft.getInstance().world.sendQuittingDisconnectingPacket();
 
-			Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+			Minecraft.getInstance().addScheduledTask(new Runnable() {
 
 				@Override
 				public void run() {
-					Minecraft.getMinecraft().loadWorld((WorldClient)null);
-					Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu()); //TODO Error screen
+					Minecraft.getInstance().loadWorld((WorldClient)null);
+					Minecraft.getInstance().displayGuiScreen(new MainMenuScreen()); //TODO Error screen
 				}
 				
 			});
             
-//			Minecraft.getMinecraft().loadWorld(null);
+//			Minecraft.getInstance().loadWorld(null);
 		}else {
 			IRLW.logger.info("The integrated server is not running, we won't stop it.");
 		}
