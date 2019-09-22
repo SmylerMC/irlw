@@ -20,16 +20,9 @@ package org.framagit.smylermc.irlw.world;
 
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.client.gui.CustomizeIRLWorldScreen;
-import org.framagit.smylermc.irlw.world.gen.IRLWChunkGenerator;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
-import net.minecraft.world.gen.ChunkGenerator;
 
 /**
  * @author SmylerMC
@@ -43,6 +36,7 @@ public class IRLWorldType extends WorldType {
 	 */
 	public IRLWorldType(String name) {
 		super(name);
+		this.setCustomOptions(true);
 	}
 	
 	
