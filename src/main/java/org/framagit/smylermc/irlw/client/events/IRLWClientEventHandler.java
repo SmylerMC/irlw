@@ -63,9 +63,9 @@ public class IRLWClientEventHandler {
 	
 	@SubscribeEvent
 	public static void onGuiPostInit(GuiScreenEvent.InitGuiEvent.Post event) {
-		if(		!IRLWConfiguration.ignoreInvalidTokens
+		if(		!IRLWConfiguration.ignoreInvalidTokens.get()
 				&& event.getGui() instanceof WorldSelectionScreen
-				&& !MapboxUtils.checkToken(IRLWConfiguration.mapboxToken)) {
+				&& !MapboxUtils.checkToken(IRLWConfiguration.mapboxToken.get())) {
 			IRLW.logger.info("Token is invalid, prompting for a valid token.");
 			Minecraft.getInstance().displayGuiScreen(new InvalidTokenPromptScreen(event.getGui()));
 		}

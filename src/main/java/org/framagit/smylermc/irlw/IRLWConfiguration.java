@@ -18,11 +18,15 @@
 */
 package org.framagit.smylermc.irlw;
 
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.ConfigManager;
+import java.nio.file.Path;
+
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.io.WritingMode;
+
+import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 
 /**
  * @author SmylerMC
@@ -30,40 +34,69 @@ import net.minecraftforge.fml.common.Mod;
  * IRLW's config
  *
  */
-@Config(modid = IRLW.MOD_ID)
+@Mod.EventBusSubscriber
 public class IRLWConfiguration{
 	
-	@Config.Comment("The mods needs access to Mapbox's online API to work, you need to create an account at mapbox.com")
-	public static String mapboxToken = "";
+	public static final String CATEGORY_GENERAL = "general";
+	public static final String CATEGORY_MAPBOX = "mapbox";
 	
-	@Config.Comment("Should we ask if you want to set a mapbox token.")
-	public static boolean ignoreInvalidTokens = false;
+	public static final ForgeConfigSpec COMMON_CONFIG;
+	private static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
 	
-	@Config.Comment("Where to cache our files")
-	public static String cachingDir = "IRLW_cache";
+	public static final ForgeConfigSpec CLIENT_CONFIG;
+	private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
 
 	
-	@Config.Comment("The default zoom level to use when generating a world")
-	public static int defaultZoomLevel = 0;
+	public static ForgeConfigSpec.ConfigValue<String> mapboxToken;
+	public static final String MAPBOX_TOKEN_COMMENT = "The mods needs access to Mapbox's online API to work, you need to create an account at mapbox.com";
 	
-	public static void sync() {
-		ConfigManager.sync(IRLW.MOD_ID, Config.Type.INSTANCE);	
+	public static ForgeConfigSpec.BooleanValue ignoreInvalidTokens;
+	public static final String IGNORE_TOKEN_COMMENT = "Should we ask if you want to set a mapbox token.";
+		
+	public static ForgeConfigSpec.ConfigValue<String> cachingDir;
+	public static final String CACHE_DIR_COMMENT = "Where to cache our files";
+	
+	public static ForgeConfigSpec.IntValue defaultZoomLevel;
+	public static final String DEFAULT_ZOOM_COMMENT = "The default zoom level to use when generating a world";
+	
+	static {
+		COMMON_BUILDER.comment("General Settings").push(IRLWConfiguration.CATEGORY_GENERAL);
+		cachingDir = COMMON_BUILDER.comment(CACHE_DIR_COMMENT).define("cache_directory", "cache");
+		defaultZoomLevel = COMMON_BUILDER.comment(DEFAULT_ZOOM_COMMENT).defineInRange("default_zoom_level", 7, 0, 15);
+		COMMON_BUILDER.pop();
+		
+		COMMON_BUILDER.comment("Mapbox Settings").push(CATEGORY_MAPBOX);
+		mapboxToken = COMMON_BUILDER.comment(MAPBOX_TOKEN_COMMENT).define("mapbox_token", "");
+		ignoreInvalidTokens = COMMON_BUILDER.comment(IGNORE_TOKEN_COMMENT).define("ignore_invalid_tokens", false);
+		
+		COMMON_BUILDER.pop();
+		
+		IRLW.logger.info("Building configs");
+		COMMON_CONFIG = COMMON_BUILDER.build();
+		CLIENT_CONFIG = CLIENT_BUILDER.build();
 	}
-	
-	@Mod.EventBusSubscriber(modid = IRLW.MOD_ID)
-	private static class EventHandler {
 
-		/**
-		 * Inject the new values and save to the config file when the config has been changed from the GUI.
-		 *
-		 * @param event The event
-		 */
-		@SubscribeEvent
-		public static void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) {
-			if (event.getModID().equals(IRLW.MOD_ID)) {
-				IRLWConfiguration.sync();
-			}
-		}
-}
+	public static void loadConfig(ForgeConfigSpec spec, Path path) {
+		
+		IRLW.logger.info("Loading config");
+		
+		final CommentedFileConfig configData = CommentedFileConfig.builder(path)
+				.sync()
+				.autosave()
+				.writingMode(WritingMode.REPLACE)
+				.build();
+		configData.load();
+		spec.setConfig(configData);
+	}
 
+	@SubscribeEvent
+    public static void onLoad(final ModConfig.Loading configEvent) {
+
+    }
+
+    @SubscribeEvent
+    public static void onReload(final ModConfig.ConfigReloading configEvent) {
+    	
+    }
+    
 }

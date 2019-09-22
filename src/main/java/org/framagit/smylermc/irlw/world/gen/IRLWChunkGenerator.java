@@ -20,33 +20,16 @@
 */
 package org.framagit.smylermc.irlw.world.gen;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.framagit.smylermc.irlw.IRLW;
-import org.framagit.smylermc.irlw.maps.TileFactory;
 import org.framagit.smylermc.irlw.maps.TiledMap;
-import org.framagit.smylermc.irlw.maps.exceptions.InvalidMapboxSessionException;
-import org.framagit.smylermc.irlw.maps.tiles.RasterWebTile;
 import org.framagit.smylermc.irlw.maps.tiles.tiles.MapboxElevationTile;
-import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
-import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
-import org.framagit.smylermc.irlw.world.IRLWEmptyChunk;
-import org.framagit.smylermc.irlw.world.WorldConstants;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biome.SpawnListEntry;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.GenerationSettings;
 import net.minecraft.world.gen.Heightmap.Type;
-import net.minecraft.world.gen.OverworldChunkGenerator;
 
 /**
  * @author SmylerMC
@@ -54,8 +37,16 @@ import net.minecraft.world.gen.OverworldChunkGenerator;
  * TODO Type comment
  *
  */
-public class IRLWChunkGenerator extends ChunkGenerator { //TODO Create IRLW Chunk generation Setting
+//FIXME 1.14.4 - IRLW Chunk generator
+public class IRLWChunkGenerator extends ChunkGenerator {
+	
+	public IRLWChunkGenerator(IWorld worldIn, BiomeProvider biomeProviderIn, GenerationSettings generationSettingsIn) {
+		super(worldIn, biomeProviderIn, generationSettingsIn);
+		// TODO Auto-generated constructor stub
+	}
 
+//TODO Create IRLW Chunk generation Setting
+//
 	private World world;
 	
 	private long xDelta;
@@ -64,145 +55,145 @@ public class IRLWChunkGenerator extends ChunkGenerator { //TODO Create IRLW Chun
 	private double centerLat;
 	private int zoomLevel = 0;
 	private TiledMap<MapboxElevationTile> heightMap;
-	
-	private OverworldChunkGenerator overwoldGenerator;
-	
-	private final static int WATER_LEVEL = 63;
-	
-	/**
-	 * @param worldIn
-	 * @param seed
-	 * @param mapFeaturesEnabledIn
-	 * @param generatorOptions
-	 */
-	//TODO Update for new generation
-	public IRLWChunkGenerator(World worldIn, long seed, double centerLong, double centerLat, int zoomLevel) {
-		this.centerLat = centerLat;
-		this.centerLong = centerLong;
-		this.xDelta = (long) WebMercatorUtils.getXFromLongitude(this.centerLong, zoomLevel)/16;
-		this.zDelta = (long) WebMercatorUtils.getYFromLatitude(this.centerLat, zoomLevel)/16;
-		this.xDelta *= 16;	//We are just rounding up to match chunks
-		this.zDelta *= 16;
-		this.zoomLevel = zoomLevel;
-		this.world = worldIn;
-		this.heightMap = new TiledMap<MapboxElevationTile>(TileFactory.MAPBOX_ELEVATION_TILE_FACTORY, this.zoomLevel);
-		this.heightMap.enableSmartLoading();
-		this.overwoldGenerator = new OverworldChunkGenerator(worldIn, seed, true, "");
-	}
-	
-	//TODO Implement new generation system
-	@Override
-	public Chunk generateChunk(int x, int z) {
-		
-		Chunk chunk = new IRLWEmptyChunk(this.world, x, z);
-		
-		try {
-			ChunkPrimer primer = new ChunkPrimer();
-			this.setBlocksInChunk(x, z, primer);
-			Biome[] biomesForGeneration = this.world.getBiomeProvider().getBiomes(new Biome[] {}, x * 16, z * 16, 16, 16);
-		    this.overwoldGenerator.replaceBiomeBlocks(x, z, primer, biomesForGeneration);
-		    chunk = new Chunk(world, primer, x, z);
-		} catch (Exception e) {
-			if(e instanceof RasterWebTile.InvalidTileCoordinatesException){
-				chunk = new Chunk(world, x, z);
-			} else {
-				IRLW.logger.error("We got an exception when generating! See stack trace. You may report bugs to " + IRLW.AUTHOR_EMAIL);
-				IRLW.logger.error("Here is more info: \n\tZoom level: " + this.zoomLevel +
-						"\n\tDelta X: " + this.xDelta + " Delta Z: " + this.zDelta +
-						"\n\tChunk: (" + x + ";" + z);
-				IRLW.logger.catching(e);
-				IRLW.proxy.onGenerationError(world, e);
-			}
-		}
-		
-	    chunk.generateSkylightMap();
-	    return chunk;
-	    
-	}
-	
-	/*
-	 * This is all temporary, but works
-	 */
-	public void setBlocksInChunk(int x, int z, ChunkPrimer primer) throws IOException, InvalidMapboxSessionException {
-		for(int cx = 0; cx<16; cx++) {
-			for(int cz = 0; cz<16; cz++) {
-				int height = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+ this.zDelta))/(WorldConstants.EVREST_ALTITUDE/192));
-//				int heightUp = (int) (Math.round(getHeightFromData((long)x*16+cx+1+ this.xDelta, (long)z*16+cz+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-//				int heightDown = (int) (Math.round(getHeightFromData((long)x*16+cx-1 + this.xDelta, (long)z*16+cz + this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-//				int heightLeft = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-//				int heightRight = (int) (Math.round(getHeightFromData((long)x*16+cx+ this.xDelta, (long)z*16+cz-1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
-				if(height!=0) height += 63; else height = 43;
-//				if(heightUp!=0) heightUp += 63;else heightUp = 43;
-//				if(heightDown!=0) heightDown += 63;else heightDown = 43;
-//				if(heightLeft!=0) heightLeft += 63;else heightLeft = 43;
-//				if(heightRight!=0) heightRight += 63;else heightRight = 43;
-//				height = (height +  heightUp + heightDown + heightLeft + heightRight) / 5 ; 
-				int cy=0;
-				for(; cy<height;cy++) {
-					primer.setBlockState(cx, cy, cz, Blocks.STONE.getDefaultState());
-				}
-				for(; cy<IRLWChunkGenerator.WATER_LEVEL;cy++) {
-					primer.setBlockState(cx, cy, cz, Blocks.WATER.getDefaultState());
-				}
-			}
-		}
-	}
-	
-	
-	/**
-	 * Gets the terrain height at x and y on the tiled map of the corresponding zoom
-	 * 
-	 * @return the altitude in meter
-	 * @throws InvalidMapboxSessionException 
-	 * @throws IOException 
-	 */
-	private double getHeightFromData(long x, long y) throws IOException, InvalidMapboxSessionException {
-		int[] pixel = this.heightMap.getPixel(x, y);
-		return MapboxUtils.RGBAToHeight(pixel);
-	}
-
-
-//TODO Update for new generation
-//	@Override
-//	public void populate(int x, int z) {
-//			this.overwoldGenerator.populate(x, z);
+//	
+//	private OverworldChunkGenerator overwoldGenerator;
+//	
+//	private final static int WATER_LEVEL = 63;
+//	
+//	/**
+//	 * @param worldIn
+//	 * @param seed
+//	 * @param mapFeaturesEnabledIn
+//	 * @param generatorOptions
+//	 */
+//	//TODO Update for new generation
+//	public IRLWChunkGenerator(World worldIn, long seed, double centerLong, double centerLat, int zoomLevel) {
+//		this.centerLat = centerLat;
+//		this.centerLong = centerLong;
+//		this.xDelta = (long) WebMercatorUtils.getXFromLongitude(this.centerLong, zoomLevel)/16;
+//		this.zDelta = (long) WebMercatorUtils.getYFromLatitude(this.centerLat, zoomLevel)/16;
+//		this.xDelta *= 16;	//We are just rounding up to match chunks
+//		this.zDelta *= 16;
+//		this.zoomLevel = zoomLevel;
+//		this.world = worldIn;
+//		this.heightMap = new TiledMap<MapboxElevationTile>(TileFactory.MAPBOX_ELEVATION_TILE_FACTORY, this.zoomLevel);
+//		this.heightMap.enableSmartLoading();
+//		this.overwoldGenerator = new OverworldChunkGenerator(worldIn, seed, true, "");
 //	}
-
-
-//TODO Update for new generation
+//	
+//	//TODO Implement new generation system
 //	@Override
-//	public boolean generateStructures(Chunk chunkIn, int x, int z) {
-//		return this.overwoldGenerator.generateStructures(chunkIn, x, z); 
+//	public Chunk generateChunk(int x, int z) {
+//		
+//		Chunk chunk = new IRLWEmptyChunk(this.world, x, z);
+//		
+//		try {
+//			ChunkPrimer primer = new ChunkPrimer();
+//			this.setBlocksInChunk(x, z, primer);
+//			Biome[] biomesForGeneration = this.world.getBiomeProvider().getBiomes(new Biome[] {}, x * 16, z * 16, 16, 16);
+//		    this.overwoldGenerator.replaceBiomeBlocks(x, z, primer, biomesForGeneration);
+//		    chunk = new Chunk(world, primer, x, z);
+//		} catch (Exception e) {
+//			if(e instanceof RasterWebTile.InvalidTileCoordinatesException){
+//				chunk = new Chunk(world, x, z);
+//			} else {
+//				IRLW.logger.error("We got an exception when generating! See stack trace. You may report bugs to " + IRLW.AUTHOR_EMAIL);
+//				IRLW.logger.error("Here is more info: \n\tZoom level: " + this.zoomLevel +
+//						"\n\tDelta X: " + this.xDelta + " Delta Z: " + this.zDelta +
+//						"\n\tChunk: (" + x + ";" + z);
+//				IRLW.logger.catching(e);
+//				IRLW.proxy.onGenerationError(world, e);
+//			}
+//		}
+//		
+//	    chunk.generateSkylightMap();
+//	    return chunk;
+//	    
 //	}
-
-
-	@Override
-	public List<SpawnListEntry> getPossibleCreatures(EntityClassification creatureType, BlockPos pos) {
-		return this.overwoldGenerator.getPossibleCreatures(creatureType, pos);
-	}
-
-
-//TODO Update for new generation
+//	
+//	/*
+//	 * This is all temporary, but works
+//	 */
+//	public void setBlocksInChunk(int x, int z, ChunkPrimer primer) throws IOException, InvalidMapboxSessionException {
+//		for(int cx = 0; cx<16; cx++) {
+//			for(int cz = 0; cz<16; cz++) {
+//				int height = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+ this.zDelta))/(WorldConstants.EVREST_ALTITUDE/192));
+////				int heightUp = (int) (Math.round(getHeightFromData((long)x*16+cx+1+ this.xDelta, (long)z*16+cz+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+////				int heightDown = (int) (Math.round(getHeightFromData((long)x*16+cx-1 + this.xDelta, (long)z*16+cz + this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+////				int heightLeft = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+////				int heightRight = (int) (Math.round(getHeightFromData((long)x*16+cx+ this.xDelta, (long)z*16+cz-1+ this.zDelta))/(IRLWChunkGenerator.EVREST_ALTITUDE/192));
+//				if(height!=0) height += 63; else height = 43;
+////				if(heightUp!=0) heightUp += 63;else heightUp = 43;
+////				if(heightDown!=0) heightDown += 63;else heightDown = 43;
+////				if(heightLeft!=0) heightLeft += 63;else heightLeft = 43;
+////				if(heightRight!=0) heightRight += 63;else heightRight = 43;
+////				height = (height +  heightUp + heightDown + heightLeft + heightRight) / 5 ; 
+//				int cy=0;
+//				for(; cy<height;cy++) {
+//					primer.setBlockState(cx, cy, cz, Blocks.STONE.getDefaultState());
+//				}
+//				for(; cy<IRLWChunkGenerator.WATER_LEVEL;cy++) {
+//					primer.setBlockState(cx, cy, cz, Blocks.WATER.getDefaultState());
+//				}
+//			}
+//		}
+//	}
+//	
+//	
+//	/**
+//	 * Gets the terrain height at x and y on the tiled map of the corresponding zoom
+//	 * 
+//	 * @return the altitude in meter
+//	 * @throws InvalidMapboxSessionException 
+//	 * @throws IOException 
+//	 */
+//	private double getHeightFromData(long x, long y) throws IOException, InvalidMapboxSessionException {
+//		int[] pixel = this.heightMap.getPixel(x, y);
+//		return MapboxUtils.RGBAToHeight(pixel);
+//	}
+//
+//
+////TODO Update for new generation
+////	@Override
+////	public void populate(int x, int z) {
+////			this.overwoldGenerator.populate(x, z);
+////	}
+//
+//
+////TODO Update for new generation
+////	@Override
+////	public boolean generateStructures(Chunk chunkIn, int x, int z) {
+////		return this.overwoldGenerator.generateStructures(chunkIn, x, z); 
+////	}
+//
+//
 //	@Override
-//	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position,
-//			boolean findUnexplored) {
-//		return this.overwoldGenerator.getNearestStructurePos(worldIn, structureName, position, findUnexplored);
+//	public List<SpawnListEntry> getPossibleCreatures(EntityClassification creatureType, BlockPos pos) {
+//		return this.overwoldGenerator.getPossibleCreatures(creatureType, pos);
 //	}
-
-
-//TODO Update for new generation
-//	@Override
-//	public void recreateStructures(Chunk chunkIn, int x, int z) {
-//		this.overwoldGenerator.recreateStructures(chunkIn, x, z);
-//	}
-
-//TODO Update for new generation
-//	@Override
-//	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
-//		return this.overwoldGenerator.isInsideStructure(worldIn, structureName, pos);
-//	}
-	
-	
+//
+//
+////TODO Update for new generation
+////	@Override
+////	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position,
+////			boolean findUnexplored) {
+////		return this.overwoldGenerator.getNearestStructurePos(worldIn, structureName, position, findUnexplored);
+////	}
+//
+//
+////TODO Update for new generation
+////	@Override
+////	public void recreateStructures(Chunk chunkIn, int x, int z) {
+////		this.overwoldGenerator.recreateStructures(chunkIn, x, z);
+////	}
+//
+////TODO Update for new generation
+////	@Override
+////	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
+////		return this.overwoldGenerator.isInsideStructure(worldIn, structureName, pos);
+////	}
+//	
+//	
 	/* Getters and Setters from there */
 	
 	public int getZoomLevel() {

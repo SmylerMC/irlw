@@ -20,21 +20,18 @@
 
 package org.framagit.smylermc.irlw.world;
 
-import javax.xml.ws.handler.MessageContext;
-
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.world.gen.IRLWChunkGenerator;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraft.world.storage.MapData;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.relauncher.Side;
-public class IRLWWorldData extends MapData implements IMessage{
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldSavedData;
+
+
+//FIXME 1.14.4 - IRLWWorldData network and saving
+public class IRLWWorldData extends WorldSavedData{
 	
 	
 	//Because only one of this should be saved by world, this is the ID it has to use
@@ -95,8 +92,8 @@ public class IRLWWorldData extends MapData implements IMessage{
 
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt) {
-		this.zoomLevel = nbt.getInteger(this.KEY_ZOOM);
+	public void read(CompoundNBT nbt) {
+		this.zoomLevel = nbt.getInt(this.KEY_ZOOM);
 		this.centerLat = nbt.getDouble(this.KEY_LATITUDE);
 		this.centerLong = nbt.getDouble(this.KEY_LONGITUDE);
 		this.xDelta = nbt.getLong(this.KEY_DELTAX);
@@ -112,37 +109,37 @@ public class IRLWWorldData extends MapData implements IMessage{
 	 * @param nbt the nbt tag to write
 	 */
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		nbt.setInteger(this.KEY_ZOOM, this.zoomLevel);
-		nbt.setDouble(this.KEY_LATITUDE, this.centerLat);
-		nbt.setDouble(this.KEY_LONGITUDE, this.centerLong);
-		nbt.setLong(this.KEY_DELTAX, this.xDelta);
-		nbt.setLong(this.KEY_DELTAZ, this.zDelta);
+	public CompoundNBT write(CompoundNBT nbt) {
+		nbt.putInt(this.KEY_ZOOM, this.zoomLevel);
+		nbt.putDouble(this.KEY_LATITUDE, this.centerLat);
+		nbt.putDouble(this.KEY_LONGITUDE, this.centerLong);
+		nbt.putLong(this.KEY_DELTAX, this.xDelta);
+		nbt.putLong(this.KEY_DELTAZ, this.zDelta);
 //		nbt.setBoolean("borderset", this.isBorderSet);
 		return nbt;
 	}
 
 	
-	@Override
-	public void fromBytes(ByteBuf buf) {
+	public static IRLWWorldData fromBytes(PacketBuffer buf) {
 		//Order should be the same as in this#toBytes(ByteBuf buf)
-		this.setZoomLevel(buf.readInt());
-		this.setCenterLatitude(buf.readDouble());
-		this.setCenterLongitude(buf.readDouble());
-		this.setDeltaX(buf.readLong());
-		this.setDeltaZ(buf.readLong());
-//		this.isBorderSet = buf.readBoolean();
+		IRLWWorldData data = new IRLWWorldData();
+		data.setZoomLevel(buf.readInt());
+		data.setCenterLatitude(buf.readDouble());
+		data.setCenterLongitude(buf.readDouble());
+		data.setDeltaX(buf.readLong());
+		data.setDeltaZ(buf.readLong());
+//		data.isBorderSet = buf.readBoolean();
+		return data;
 	}
 
 	
-	@Override
-	public void toBytes(ByteBuf buf) {
+	public static void toBytes(IRLWWorldData data, PacketBuffer buf) {
 		//Order should be the same as in this#fromBytes(ByteBuf buf)
-		buf.writeInt(this.getZoomLevel());
-		buf.writeDouble(this.getCenterLatitude());
-		buf.writeDouble(this.getCenterLongitude());
-		buf.writeLong(this.getDeltaX());
-		buf.writeLong(this.getDeltaZ());
+		buf.writeInt(data.getZoomLevel());
+		buf.writeDouble(data.getCenterLatitude());
+		buf.writeDouble(data.getCenterLongitude());
+		buf.writeLong(data.getDeltaX());
+		buf.writeLong(data.getDeltaZ());
 //		buf.writeBoolean(this.isBorderSet);
 	}
 
@@ -155,7 +152,7 @@ public class IRLWWorldData extends MapData implements IMessage{
 	 * 
 	 * @param world the world to set
 	 */
-	public static void setForWorld(World world) {
+	public static void setForWorld(ServerWorld world) {
 		if(! world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)) {
 			return;
 		}
@@ -167,63 +164,63 @@ public class IRLWWorldData extends MapData implements IMessage{
 		data.setDeltaX(generator.getDeltaX());
 		data.setDeltaZ(generator.getDeltaZ());
 		data.setZoomLevel(generator.getZoomLevel());
-		world.getMapStorage().setData(IRLWWorldData.IRLW_DATA, data);
+		world.getSavedData().set(data); //FIXME 1.14.4 Make sure that works
 	}
 	
 	
-	/**
-	 * The packet handler for a IRLWWorldData object
-	 * 
-	 * @author Smyler
-	 *
-	 */
-	public static class IRLWWorldDataMessageHandler implements IMessageHandler<IRLWWorldData, IMessage>, Runnable{
-
-		//Required by forge
-		public IRLWWorldDataMessageHandler(){}
-		
-		
-		//Used to set the data from Minecraft thread
-		private IRLWWorldData dataToSet = null;
-		
-		
-		/**
-		 * Called from the client network thread when receiving a MapboxWorldData packet
-		 */
-		@Override
-		public IMessage onMessage(IRLWWorldData message, MessageContext ctx) {
-			if(ctx.side.equals(Side.CLIENT)){
-				IRLW.logger.debug("Received mapbox mapdata from server.");
-				this.dataToSet = message;
-				Minecraft.getMinecraft().addScheduledTask(this);
-			}
-		    return null;
-		}
-		
-		
-		/**
-		 * Should be called from the Minecraft thread
-		 */
-		@Override
-		public void run() {
-			if(dataToSet == null){
-				IRLW.logger.error("Calling run to set mapbox world data but it is null! Please report this error at " + IRLW.AUTHOR_EMAIL);
-				return;
-			}
-			if(! Minecraft.getMinecraft().isCallingFromMinecraftThread()){
-				IRLW.logger.error("Calling run to set mapbox world data from thread " + Thread.currentThread().getName() + "! This is not normal, please report at " + IRLW.AUTHOR_EMAIL);
-				return;
-			}
-			try{
-				World world = Minecraft.getMinecraft().world;
-				world.setData(IRLWWorldData.IRLW_DATA, dataToSet);
-				IRLW.logger.info("Successfully synchronised mapbox map data with server.");
-			}catch(Exception e){
-				IRLW.logger.error("Failed to set mapbox mapdata, please report this error at " + IRLW.AUTHOR_EMAIL);
-				IRLW.logger.catching(e);
-			}
-		}
-	}
+//	/**
+//	 * The packet handler for a IRLWWorldData object
+//	 * 
+//	 * @author Smyler
+//	 *
+//	 */
+//	public static class IRLWWorldDataMessageHandler implements Runnable {
+//
+//		//Required by forge
+//		public IRLWWorldDataMessageHandler(){}
+//		
+//		
+//		//Used to set the data from Minecraft thread
+//		private IRLWWorldData dataToSet = null;
+//		
+//
+//		/**
+//		 * Called from the client network thread when receiving a MapboxWorldData packet
+//		 */
+//		@Override
+//		public IMessage onMessage(IRLWWorldData message, MessageContext ctx) {
+//			if(ctx.side.equals(Side.CLIENT)){
+//				IRLW.logger.debug("Received mapbox mapdata from server.");
+//				this.dataToSet = message;
+//				Minecraft.getMinecraft().addScheduledTask(this);
+//			}
+//		    return null;
+//		}
+//		
+//		
+//		/**
+//		 * Should be called from the Minecraft thread
+//		 */
+//		@Override
+//		public void run() {
+//			if(dataToSet == null){
+//				IRLW.logger.error("Calling run to set mapbox world data but it is null! Please report this error at " + IRLW.AUTHOR_EMAIL);
+//				return;
+//			}
+//			if(! Minecraft.getInstance().isCallingFromMinecraftThread()){
+//				IRLW.logger.error("Calling run to set mapbox world data from thread " + Thread.currentThread().getName() + "! This is not normal, please report at " + IRLW.AUTHOR_EMAIL);
+//				return;
+//			}
+//			try{
+//				World world = Minecraft.getInstance().world;
+//				world.setData(IRLWWorldData.IRLW_DATA, dataToSet);
+//				IRLW.logger.info("Successfully synchronised mapbox map data with server.");
+//			}catch(Exception e){
+//				IRLW.logger.error("Failed to set mapbox mapdata, please report this error at " + IRLW.AUTHOR_EMAIL);
+//				IRLW.logger.catching(e);
+//			}
+//		}
+//	}
 	
 	
 	/* Getters and Setters from there */

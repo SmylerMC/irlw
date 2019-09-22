@@ -68,7 +68,7 @@ public class CustomizeIRLWorldScreen extends Screen{
 	 * @param guiCreateWorld
 	 */
     public CustomizeIRLWorldScreen(Minecraft mc, CreateWorldScreen guiCreateWorld) {
-    	super(new TranslationTextComponent("")); //TODO 1.14.4 - Customize IRL world screen title
+    	super(new TranslationTextComponent("")); //FIXME 1.14.4 - Customize IRL world screen title
 		this.minecraft = mc;
 		this.createWorldGui = guiCreateWorld;
 	}
@@ -116,7 +116,7 @@ public class CustomizeIRLWorldScreen extends Screen{
         this.addButton(new Button(this.width/2 - 160, 170, 150, 20, I18n.format("irlwworldgui.randomize_spawn"), this::populateRandomCoordinates));
 
         Button presetButton = new Button(this.width/2 + 10, 170, 150, 20, I18n.format("irlwworldgui.preset_spawn"), null); //TODO Implement preset spawn points
-        presetButton.active = false; //TODO 1.14.4 - Check is active is what we where looking for
+        presetButton.active = false; //FIXME 1.14.4 - Check is active is what we where looking for
         this.addButton(presetButton);
         
         this.updateJsonFromValues();
@@ -140,7 +140,7 @@ public class CustomizeIRLWorldScreen extends Screen{
     	this.drawString(this.font, I18n.format("irlwworldgui.spawn_lat"), this.width / 2 - 100, 136, -1);
     	long worldSize = 1<<(this.zoomLevel + 8);
     	this.drawCenteredString(this.font, I18n.format("irlwworldgui.world_size", worldSize), this.width / 2 + 98, 76, 0xFFFFFFFF);
-    	//this.smap.render(); //TODO 1.14.4 - Remove if effectively useless
+    	//this.smap.render(); //FIXME 1.14.4 - Remove if effectively useless
     	this.smap.setPointerLongLat(this.spawnLong, this.spawnLat, 0xFFFF0000);
     	if(this.mapButton.isMouseOver(mouseX, mouseY)) {
     		this.renderTooltip(I18n.format("irlwworldgui.spawn_picking"), mouseX, mouseY);
@@ -166,7 +166,7 @@ public class CustomizeIRLWorldScreen extends Screen{
     private void done(Button b) {
     	this.save();
 		this.minecraft.displayGuiScreen(this.createWorldGui) ;
-		//this.mc.updateDisplay(); //TODO 1.14.4 - Why was this here ?
+		//this.mc.updateDisplay(); //FIXME 1.14.4 - Why was this here ?
     } //TODO
     
     
@@ -202,7 +202,7 @@ public class CustomizeIRLWorldScreen extends Screen{
      * Saves the gui's settings to the configuration object and then saves it.
      */
     private void save(){
-    	//TODO 1.14.4 - generator's json has changed, figure out how it works and implement it
+    	//FIXME 1.14.4 - generator's json has changed, figure out how it works and implement it
     	//this.createWorldGui.chunkProviderSettingsJson = this.generatorJson.getText(); 
     }
     
@@ -213,7 +213,7 @@ public class CustomizeIRLWorldScreen extends Screen{
      */
     @Override
 	public boolean mouseClicked(double mouseX, double mouseY, int mouseButton){
-    	//TODO 1.14.4 - Test if everything works properly
+    	//FIXME 1.14.4 - Test if everything works properly
     	this.generatorJson.mouseClicked(mouseX, mouseY, mouseButton);
     	this.latitudeField.mouseClicked(mouseX, mouseY, mouseButton);
     	this.longitudeField.mouseClicked(mouseX, mouseY, mouseButton);

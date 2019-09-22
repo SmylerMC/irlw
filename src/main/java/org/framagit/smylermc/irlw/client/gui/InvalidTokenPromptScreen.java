@@ -51,7 +51,7 @@ public class InvalidTokenPromptScreen extends Screen implements Runnable{
 	
 	
 	public InvalidTokenPromptScreen(Screen parent) {
-		super(new TranslationTextComponent("")); //TODO 1.14.4 - Customize token prompt title
+		super(new TranslationTextComponent("")); //FIXME 1.14.4 - Customize token prompt title
 		this.parent = parent;
 	}
 
@@ -84,14 +84,14 @@ public class InvalidTokenPromptScreen extends Screen implements Runnable{
         //Mapbox token text field
         tokenField = new TextFieldWidget(this.font, this.width / 2 - 50, 60, 200, 20, ""); //TODO TextFieldWidget value and Localization
         tokenField.setMaxStringLength(89);
-        this.tokenField.setText(IRLWConfiguration.mapboxToken);
+        this.tokenField.setText(IRLWConfiguration.mapboxToken.get());
         this.addButton(this.tokenField);
         
         this.ignoreTxt.add(I18n.format("irlwtokengui.ignorehover", new Object[0]));
         if(Minecraft.getInstance().isIntegratedServerRunning())
         	this.ignoreTxt.add(I18n.format("irlwtokengui.ignorehover.running", new Object[0]));
         
-        this.checker = new TokenChecker(IRLWConfiguration.mapboxToken);
+        this.checker = new TokenChecker(IRLWConfiguration.mapboxToken.get());
         
     }
     
@@ -100,7 +100,7 @@ public class InvalidTokenPromptScreen extends Screen implements Runnable{
      */
 	@Override
     public void render(int mouseX, int mouseY, float partialTicks){
-		this.renderBackground(); //TODO 1.14.4 - Is it needed to call renderBackground ?
+		this.renderBackground(); //FIXME 1.14.4 - Is it needed to call renderBackground ?
 		super.render(mouseX, mouseY, partialTicks);
     	this.drawCenteredString(this.font, I18n.format("irlwtokengui.title", new Object[0]), this.width / 2, 20, -1);
     	this.drawString(this.font, I18n.format("irlwtokengui.token"), this.width / 2 - 150, 66, -1);
@@ -121,7 +121,7 @@ public class InvalidTokenPromptScreen extends Screen implements Runnable{
      */
 	@Override
     public void tick(){
-		//TODO 1.14.4 - Is this useful ?
+		//FIXME 1.14.4 - Is this useful ?
     	//this.tokenField.updateCursorCounter(); //Don't know what it really does, but present in existing game guis :(
 		
     	if(this.checker.isValid()) {
@@ -162,7 +162,7 @@ public class InvalidTokenPromptScreen extends Screen implements Runnable{
 	private void giveUp(Button button) {
 		this.isDone = true;
 		IRLW.cacheManager.clearQueue();
-		IRLWConfiguration.ignoreInvalidTokens = true;
+		IRLWConfiguration.ignoreInvalidTokens.set(true);
 		IRLW.proxy.stopServer();
 		Minecraft.getInstance().displayGuiScreen(this.parent);		
 	}
@@ -173,8 +173,7 @@ public class InvalidTokenPromptScreen extends Screen implements Runnable{
      * Saves the gui's settings to the configuration object and then saves it.
      */
     private void save(){
-    	IRLWConfiguration.mapboxToken = this.tokenField.getText();
-    	IRLWConfiguration.sync();
+    	IRLWConfiguration.mapboxToken.set(this.tokenField.getText());
     	this.isDone = true;
     	IRLW.logger.info("Saved new token");
     }

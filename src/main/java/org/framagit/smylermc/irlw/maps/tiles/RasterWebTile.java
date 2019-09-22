@@ -107,9 +107,9 @@ public abstract class RasterWebTile implements Cachable {
 	private void loadImageFomFile(File f) throws IOException {
 		if(!f.exists() || !f.isFile()) {
 //			this.image = ImageUtils.imageFromColor(this.size, this.size, this.defaultPixel);
-			this.image = new NativeImage(this.size, this.size, true); //TODO 1.14.4 - Set the color!
+			this.image = new NativeImage(this.size, this.size, true); //FIXME 1.14.4 - Set the color!
 		} else {
-			this.image = NativeImage.read(new FileInputStream(f)); //TODO 1.14.4 - Make sure this works, I'm not sure if that will read PNG correctly
+			this.image = NativeImage.read(new FileInputStream(f)); //FIXME 1.14.4 - Make sure this works, I'm not sure if that will read PNG correctly
 		}
 	}
 	/**

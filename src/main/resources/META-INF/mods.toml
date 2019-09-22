@@ -1,0 +1,31 @@
+modLoader="javafml" #mandatory
+loaderVersion="[28,)"
+
+# A URL to refer people to when problems occur with this mod
+# issueTrackerURL="http://my.issue.tracker/" #optional
+
+[[mods]]
+modId="irlw" #mandatory
+# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
+version="${file.jarVersion}" #mandatory
+displayName="IRLW"
+# A URL to query for updates for this mod. See the JSON update specification <here>
+# updateJSONURL="http://myurl.me/" #optional
+displayURL="https://framagit.org/SmylerMC/irlw"
+#logoFile="assets/irlw/textures/logo.png"
+# A text field displayed in the mod UI
+credits="In no particular order, data used by the mod may be originally published by: OpenStreetMap Contributors, the U.S. Department of Agriculture, Mapbox" #optional
+authors="Smyler"
+description='''The real world in Minecraft??'''
+
+[[dependencies.irlw]]
+    modId="forge"
+    mandatory=true
+    versionRange="[28,)" #mandatoryordering="NONE"side="BOTH"
+
+[[dependencies.irlw]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.14.4]"
+    ordering="NONE"
+    side="BOTH"

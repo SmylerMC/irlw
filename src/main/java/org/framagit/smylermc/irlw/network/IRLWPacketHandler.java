@@ -21,9 +21,10 @@
 package org.framagit.smylermc.irlw.network;
 
 import org.framagit.smylermc.irlw.IRLW;
-import org.framagit.smylermc.irlw.world.IRLWWorldData;
-
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 /**
  * The default 
@@ -33,11 +34,37 @@ import net.minecraftforge.fml.network.NetworkRegistry;
  */
 public final class IRLWPacketHandler {
 
-	//The channel instance
-	public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(IRLW.MOD_ID);
+	//Protocol version information
+	private static final String PROTOCOL_VERSION_MAJOR = "0"; // Needs to match
+	private static final String PROTOCOL_VERSION_MINOR = "1";
+	private static final String PROTOCOL_VERSION_EXTRA = "dev";
+	public static final String PROTOCOL_VERSION = 
+			IRLWPacketHandler.PROTOCOL_VERSION_MAJOR + "." +
+			IRLWPacketHandler.PROTOCOL_VERSION_MINOR + "-" +
+			IRLWPacketHandler.PROTOCOL_VERSION_EXTRA;
+	
+	
 	
 	//Packet discriminator counter, should be increased for each packet type.
 	private static int discriminator = 0;
+	
+	
+	
+	//The channel instance
+	public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
+				new ResourceLocation(IRLW.MOD_ID, "main"),
+				() -> IRLWPacketHandler.PROTOCOL_VERSION,
+				IRLWPacketHandler::isCompatible,
+				IRLWPacketHandler::isCompatible
+			);
+
+	
+	
+	private static boolean isCompatible(String version) {
+		//TODO Compare major only
+		return IRLWPacketHandler.PROTOCOL_VERSION.equals(version);
+	}
+	
 	
 	
 	/**
@@ -45,27 +72,33 @@ public final class IRLWPacketHandler {
 	 * 
 	 * @param side
 	 */
-	public static void registerHandlers(Side side){
-		if(side.isClient()){
+	public static void registerHandlers(){
+		if(FMLEnvironment.dist.isClient()){
 			registerClientHandlers();
 		}
-			registerServerHandlers();
+		registerServerHandlers();
 	}
+	
 	
 	
 	/**
 	 * Registers the server handlers
 	 */
 	private static void registerServerHandlers(){
-		IRLW.logger.debug("Registenring server network handlers");
+		IRLW.logger.debug("Registering server network handlers");
 	}
+	
+	
 	
 	/**
 	 * Registers the client handlers
 	 */
 	private static void registerClientHandlers(){
-		IRLW.logger.debug("Registenring client network handlers");
-		INSTANCE.registerMessage(IRLWWorldData.IRLWWorldDataMessageHandler.class, IRLWWorldData.class, discriminator++, Side.CLIENT);
+		IRLW.logger.debug("Registering client network handlers");
+		
+		//FIXME 1.14.4 - IRLWWorldData packet handling
+		//INSTANCE.registerMessage(discriminator++, IRLWWorldData.class, IRLWWorldData::toBytes, IRLWWorldData::fromBytes, IRLWClientPacketHandler::handleIRLWWorldData);
 	}
+
 	
 }

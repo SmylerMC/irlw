@@ -43,7 +43,7 @@ public class PickLocationScreen extends Screen {
 	protected Screen parent;
 	
 	public PickLocationScreen(Screen parent) {
-		super(new TranslationTextComponent("")); //TODO 1.14.4 - Title
+		super(new TranslationTextComponent("")); //FIXME 1.14.4 - pick location screen Title
 		//TODO Localization for pick location screen map widget
 		this.map = new TiledMapWidget(0, 0, this.width, this.height, "Pick a location", new TiledMap<MapboxSatelliteTile>(TileFactory.MAPBOX_SATELLITE_TILE_FACTORY));
 		this.addButton(this.map);
@@ -52,8 +52,8 @@ public class PickLocationScreen extends Screen {
 	
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
-		// this.drawDefaultBackground(); //TODO 1.14.4 - Check if not necessary
-		//this.map.render(); //TODO 1.14.4 - Make sure this is useless
+		// this.drawDefaultBackground(); //FIXME 1.14.4 - Check if not necessary
+		//this.map.render(); //FIXME 1.14.4 - Make sure this is useless
 		super.render(mouseX, mouseY, partialTicks);
 	}
 	

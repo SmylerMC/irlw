@@ -206,7 +206,7 @@ public class TiledMapWidget extends Widget{
      * lastButtonClicked & timeSinceMouseClick.
      */
 	@Override
-    protected void onDrag(double p1, double p2, double p3, double p4){ //TODO 1.14.4 - Make sure this parameters are what they seem to be
+    protected void onDrag(double p1, double p2, double p3, double p4){ //FIXME 1.14.4 - Make sure this parameters are what they seem to be
     	IRLW.logger.info("click move");  //TODO Remove useless log
     	super.onDrag(p1, p2, p3, p4);
     }
@@ -284,7 +284,7 @@ public class TiledMapWidget extends Widget{
     	//}
     	this.setTiledMapZoom();
     	
-    	//FIXME
+    	//FIXME tiled map
     }
     
 

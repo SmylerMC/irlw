@@ -29,11 +29,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
+import net.minecraft.world.gen.ChunkGenerator;
 
 /**
  * @author SmylerMC
  *
  */
+//FIXME 1.14.4 - Update world type to 1.14.4
 public class IRLWorldType extends WorldType {
 
 	/**
@@ -52,33 +54,34 @@ public class IRLWorldType extends WorldType {
         return true; //TODO Check for network
     }
 	
-	
-    /**
-     * Gets the spawn fuzz for players who join the world.
-     * Useful for void world types.
-     * @return Fuzz for entity initial spawn in blocks.
-     */
-    public int getSpawnFuzz(WorldServer world, net.minecraft.server.MinecraftServer server){
-//        return super.getSpawnFuzz(world, server);
-        return 0;
-    }
+
+//    /**
+//     * Gets the spawn fuzz for players who join the world.
+//     * Useful for void world types.
+//     * @return Fuzz for entity initial spawn in blocks.
+//     */
+//	@Override
+//    public int getSpawnFuzz(ServerWorld world, net.minecraft.server.MinecraftServer server){
+////        return super.getSpawnFuzz(world, server);
+//        return 0;
+//    }
     
     
-    public IChunkGenerator getChunkGenerator(World world, String generatorOptions){
-//    	return new IRLWTestChunkGenerator(world); //TODO TEMP
-    	JsonParser parser = new JsonParser();
-		try{
-    		JsonObject jsonObject = parser.parse(generatorOptions).getAsJsonObject();
-    		int zoomLevel = jsonObject.get("zoomlevel").getAsInt();
-    		double spawnLong = jsonObject.get("spawn_long").getAsDouble();
-    		double spawnLat = jsonObject.get("spawn_lat").getAsDouble();
-    		 return new IRLWChunkGenerator(world, world.getSeed(), spawnLong, spawnLat, zoomLevel);
-    	}catch(Exception e){
-    		IRLW.logger.error("Failed to create a chunk generator: ");
-    		IRLW.logger.catching(e);
-    		return new IRLWChunkGenerator(world, world.getSeed(), 0, 0, 0);
-    	}
-    }
+//	public ChunkGenerator createChunkGenerator(World world, String generatorOptions){
+////    	return new IRLWTestChunkGenerator(world); //TODO TEMP
+//    	JsonParser parser = new JsonParser();
+//		try{
+//    		JsonObject jsonObject = parser.parse(generatorOptions).getAsJsonObject();
+//    		int zoomLevel = jsonObject.get("zoomlevel").getAsInt();
+//    		double spawnLong = jsonObject.get("spawn_long").getAsDouble();
+//    		double spawnLat = jsonObject.get("spawn_lat").getAsDouble();
+//    		 return new IRLWChunkGenerator(world, world.getSeed(), spawnLong, spawnLat, zoomLevel);
+//    	}catch(Exception e){
+//    		IRLW.logger.error("Failed to create a chunk generator: ");
+//    		IRLW.logger.catching(e);
+//    		return new IRLWChunkGenerator(world, world.getSeed(), 0, 0, 0);
+//    	}
+//    }
     
 	/**
      * Called when 'Create New World' button is pressed before starting game

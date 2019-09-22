@@ -42,7 +42,7 @@ public class SimpleMapWidget extends Widget {
 	public boolean showPointer = false;
 	
 	public SimpleMapWidget(int x, int y, int size) {
-		super(x, y, size, size, ""); //TODO 1.14.4 - message text Localization for SimpleMapWidget constructor
+		super(x, y, size, size, ""); //FIXME 1.14.4 - message text Localization for SimpleMapWidget constructor
 		this.pcolor = 0xFF0000;
 		this.size = size;
 	}

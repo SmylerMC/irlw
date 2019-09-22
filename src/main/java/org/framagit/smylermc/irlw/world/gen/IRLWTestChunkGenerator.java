@@ -20,18 +20,12 @@
 */
 package org.framagit.smylermc.irlw.world.gen;
 
-import java.util.List;
-
-import org.framagit.smylermc.irlw.world.IRLWEmptyChunk;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome.SpawnListEntry;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.chunk.EmptyChunk;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.biome.provider.BiomeProvider;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.GenerationSettings;
+import net.minecraft.world.gen.Heightmap.Type;
 
 /**
  * @author SmylerMC
@@ -39,87 +33,118 @@ import net.minecraft.world.chunk.EmptyChunk;
  * TODO Type comment
  *
  */
-public class IRLWTestChunkGenerator implements IChunkGenerator{
+//FIXME 1.14.4 - IRLW Test Chunk generator
+public class IRLWTestChunkGenerator extends ChunkGenerator{
 
-	private World world;
-	
-	/**
-	 * @param worldIn
-	 * @param seed
-	 * @param mapFeaturesEnabledIn
-	 * @param generatorOptions
-	 */
-	public IRLWTestChunkGenerator(World worldIn) {
-		this.world = worldIn;
+	public IRLWTestChunkGenerator(IWorld worldIn, BiomeProvider biomeProviderIn,
+			GenerationSettings generationSettingsIn) {
+		super(worldIn, biomeProviderIn, generationSettingsIn);
+		// TODO Auto-generated constructor stub
 	}
-	
+//
+//	private World world;
+//	
+//	/**
+//	 * @param worldIn
+//	 * @param seed
+//	 * @param mapFeaturesEnabledIn
+//	 * @param generatorOptions
+//	 */
+//	public IRLWTestChunkGenerator(World worldIn) {
+//		this.world = worldIn;
+//	}
+//	
+//	@Override
+//	public Chunk generateChunk(int x, int z) {
+//		
+//		if(x == 0) {
+//			return new EmptyChunk(world ,z, x);
+//		}else if(z == 0) {
+//			return new IRLWEmptyChunk(world, z, x);
+//		}
+//		ChunkPrimer primer = new ChunkPrimer();
+//		this.setBlocksInChunk(x, z, primer);
+//		Chunk chunk = new Chunk(this.world, primer, x, z);
+//		
+//	    chunk.generateSkylightMap();
+//	    return chunk;
+//	    
+//	}
+//	
+//	/*
+//	 * This is all temporary, but works
+//	 */
+//	public void setBlocksInChunk(int x, int z, ChunkPrimer primer){
+//		for(int cx = 0; cx<16; cx++) {
+//			for(int cz = 0; cz<16; cz++) {
+//				int height = 66;
+//				int cy=0;
+//				for(; cy<height;cy++) {
+//					primer.setBlockState(cx, cy, cz, Blocks.STONE.getDefaultState());
+//				}
+//			}
+//		}
+//	}
+//
+//	@Override
+//	public void populate(int x, int z) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public boolean generateStructures(Chunk chunkIn, int x, int z) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	@Override
+//	public List<SpawnListEntry> getPossibleCreatures(EntityClassification creatureType, BlockPos pos) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position,
+//			boolean findUnexplored) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public void recreateStructures(Chunk chunkIn, int x, int z) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
 	@Override
-	public Chunk generateChunk(int x, int z) {
-		
-		if(x == 0) {
-			return new EmptyChunk(world ,z, x);
-		}else if(z == 0) {
-			return new IRLWEmptyChunk(world, z, x);
-		}
-		ChunkPrimer primer = new ChunkPrimer();
-		this.setBlocksInChunk(x, z, primer);
-		Chunk chunk = new Chunk(this.world, primer, x, z);
-		
-	    chunk.generateSkylightMap();
-	    return chunk;
-	    
-	}
-	
-	/*
-	 * This is all temporary, but works
-	 */
-	public void setBlocksInChunk(int x, int z, ChunkPrimer primer){
-		for(int cx = 0; cx<16; cx++) {
-			for(int cz = 0; cz<16; cz++) {
-				int height = 66;
-				int cy=0;
-				for(; cy<height;cy++) {
-					primer.setBlockState(cx, cy, cz, Blocks.STONE.getDefaultState());
-				}
-			}
-		}
-	}
-
-	@Override
-	public void populate(int x, int z) {
+	public void generateSurface(IChunk chunkIn) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public boolean generateStructures(Chunk chunkIn, int x, int z) {
+	public int getGroundHeight() {
 		// TODO Auto-generated method stub
-		return false;
+		return 0;
 	}
 
 	@Override
-	public List<SpawnListEntry> getPossibleCreatures(EntityClassification creatureType, BlockPos pos) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position,
-			boolean findUnexplored) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void recreateStructures(Chunk chunkIn, int x, int z) {
+	public void makeBase(IWorld worldIn, IChunk chunkIn) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
+	public int func_222529_a(int p_222529_1_, int p_222529_2_, Type p_222529_3_) {
 		// TODO Auto-generated method stub
-		return false;
+		return 0;
 	}
 
 }

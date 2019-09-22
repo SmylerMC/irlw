@@ -22,8 +22,7 @@ package org.framagit.smylermc.irlw.world;
 
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.chunk.ChunkPrimer;
 
 /**
  * @author SmylerMC
@@ -38,52 +37,58 @@ import net.minecraft.world.gen.ChunkGenerator;
  * but is never saved
  *
  */
+//FIXME 1.14.4 - Empty chunk
 public class IRLWEmptyChunk extends Chunk{
 
-	/**
-	 * @param worldIn
-	 * @param primer
-	 * @param x
-	 * @param z
-	 */
-	public IRLWEmptyChunk(World worldIn, int x, int z) {
-		super(worldIn, x, z);
+	public IRLWEmptyChunk(World p_i49947_1_, ChunkPrimer p_i49947_2_) {
+		super(p_i49947_1_, p_i49947_2_);
+		// TODO Auto-generated constructor stub
 	}
-	
-	@Override
-	public void markDirty() {} //We do not need to save this chunk
-
-    /**
-     * Generates the height map for a chunk from scratch
-     */
-    @Override
-    protected void generateHeightMap()
-    {
-        super.generateHeightMap(); // Marks the chunk as dirty, we don't want that
-        super.setModified(false);
-    }
-
-    /**
-     * Returns false because this Chunk should not be saved
-     */
-    @Override
-    public boolean needsSaving(boolean weDontCareOfThatParameter){
-        return false;
-    }
-
-    @Override
-    public boolean isEmpty(){
-        return true;
-    }
-
-    /**
-     * No need to waist time with this
-     * 
-     */
-    @Override
-    public void populate(IChunkProvider chunkProvider, ChunkGenerator chunkGenrator){}
-    
-    @Override
-    protected void populate(ChunkGenerator generator){}
+//
+//	/**
+//	 * @param worldIn
+//	 * @param primer
+//	 * @param x
+//	 * @param z
+//	 */
+//	public IRLWEmptyChunk(World worldIn, int x, int z) {
+//		super(worldIn, x, z);
+//	}
+//	
+//	@Override
+//	public void markDirty() {} //We do not need to save this chunk
+//
+//    /**
+//     * Generates the height map for a chunk from scratch
+//     */
+//    @Override
+//    protected void generateHeightMap()
+//    {
+//        super.generateHeightMap(); // Marks the chunk as dirty, we don't want that
+//        super.setModified(false);
+//    }
+//
+//    /**
+//     * Returns false because this Chunk should not be saved
+//     */
+//    @Override
+//    public boolean needsSaving(boolean weDontCareOfThatParameter){
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean isEmpty(){
+//        return true;
+//    }
+//
+//    /**
+//     * No need to waist time with this
+//     * 
+//     */
+//    @Override
+//    public void populate(IChunkProvider chunkProvider, ChunkGenerator chunkGenrator){}
+//    
+//    @Override
+//    protected void populate(ChunkGenerator generator){}
 
 }

@@ -18,12 +18,6 @@
 */
 package org.framagit.smylermc.irlw.proxy;
 
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.relauncher.Side;
-
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.network.IRLWPacketHandler;
 
@@ -35,25 +29,25 @@ import net.minecraft.world.World;
  */
 public class IRLWServerProxy implements IRLWProxy{
 
-	@Override
-	public void preinit(FMLPreInitializationEvent event) {
-		IRLWPacketHandler.registerHandlers(Side.SERVER);
-	}
-
-	@Override
-	public void init(FMLInitializationEvent event) {
-		
-	}
-
-	@Override
-	public void postinit(FMLPostInitializationEvent event) {
-		
-	}
-
-	@Override
-	public void serverStart(FMLServerStartingEvent event) {
-		
-	}
+//	@Override
+//	public void preinit(FMLPreInitializationEvent event) {
+//		IRLWPacketHandler.registerHandlers(Side.SERVER);
+//	}
+//
+//	@Override
+//	public void init(FMLInitializationEvent event) {
+//		
+//	}
+//
+//	@Override
+//	public void postinit(FMLPostInitializationEvent event) {
+//		
+//	}
+//
+//	@Override
+//	public void serverStart(FMLServerStartingEvent event) {
+//		
+//	}
 
 	@Override
 	public void failedToCache() {
@@ -68,10 +62,10 @@ public class IRLWServerProxy implements IRLWProxy{
 
 	@Override
 	public void onGenerationError(World world, Exception e) {
-		IRLW.logger.fatal("An exception occured when generating the world: " + e.toString());
-		IRLW.logger.fatal("We have to stop the server!");
-		world.getMinecraftServer().stopServer();
-		//TODO Test this!
+//		IRLW.logger.fatal("An exception occured when generating the world: " + e.toString());
+//		IRLW.logger.fatal("We have to stop the server!");
+//		world.getMinecraftServer().stopServer();
+//		//TODO Test this!
 	}
 
 	@Override

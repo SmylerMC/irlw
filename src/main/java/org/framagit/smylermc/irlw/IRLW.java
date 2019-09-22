@@ -19,12 +19,12 @@
 package org.framagit.smylermc.irlw;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.framagit.smylermc.irlw.caching.CacheManager;
 import org.framagit.smylermc.irlw.maps.tiles.tiles.MapboxElevationTile;
+import org.framagit.smylermc.irlw.network.IRLWPacketHandler;
 import org.framagit.smylermc.irlw.proxy.IRLWProxy;
 import org.framagit.smylermc.irlw.world.IRLWorldType;
 
@@ -32,29 +32,32 @@ import net.minecraft.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 /**
  * @author SmylerMC
  *
  * IRLW's main mod class
  */
-@Mod(value = IRLW.MOD_ID)
+@Mod(IRLW.MOD_ID)
 public class IRLW {
 	
 	
-	//TODO 1.14.4 - might be obsolete
+	//FIXME 1.14.4 - might be obsolete
 	/* Static fields describing the mod */
 	public static final String MOD_ID = "irlw";
 	public static final String MOD_NAME = "In Real Life World";
 	public static final String MOD_VERSION = "0.0.4.0-alpha";
+	public static final String PROTOCOL_VERSION = IRLWPacketHandler.PROTOCOL_VERSION;
 	public static final String MC_VERSIONS = "1.14.4";
 	public static final String AUTHOR_EMAIL = "smyler@mail.com";
 	public static final String WORLD_TYPE_NAME = "irlworld";
@@ -66,10 +69,11 @@ public class IRLW {
 			" contact: " + IRLW.AUTHOR_EMAIL;
 
 	
+	//FIXME 1.14.4 - Get rid of proxies
 	/* Proxy things */
 	public static final String CLIENT_PROXY_CLASS = "org.framagit.smylermc.irlw.proxy.IRLWClientProxy";
 	public static final String SERVER_PROXY_CLASS = "org.framagit.smylermc.irlw.proxy.IRLWServerProxy";
-    @SidedProxy(clientSide = IRLW.CLIENT_PROXY_CLASS, serverSide = IRLW.SERVER_PROXY_CLASS)
+    //@SidedProxy(clientSide = IRLW.CLIENT_PROXY_CLASS, serverSide = IRLW.SERVER_PROXY_CLASS)
 	public static IRLWProxy proxy;
     
     
@@ -79,6 +83,11 @@ public class IRLW {
     
     
 	public IRLW() {
+		
+        IRLW.logger.info("Building Config...");
+		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, IRLWConfiguration.CLIENT_CONFIG);
+		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, IRLWConfiguration.COMMON_CONFIG);
+		
 		// Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         // Register the enqueueIMC method for modloading
@@ -87,7 +96,12 @@ public class IRLW {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
         // Register the doClientStuff method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        
+		IRLWConfiguration.loadConfig(IRLWConfiguration.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("irlw-common.toml"));
+		IRLWConfiguration.loadConfig(IRLWConfiguration.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("irlw-client.toml"));
 
+		
+		
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 	}
@@ -95,27 +109,26 @@ public class IRLW {
 	
 	private void setup(final FMLCommonSetupEvent event) {
 		
-		//TODO 1.14.4 init
+		//FIXME 1.14.4 init
 		
 		IRLW.logger.debug("Starting IRLW setup...");
 				
 		try {
-			IRLW.cacheManager = new CacheManager(IRLWConfiguration.cachingDir);
+			IRLW.cacheManager = new CacheManager(IRLWConfiguration.cachingDir.get());
 			IRLW.cacheManager.createDirectory();
 		} catch (IOException e) {
 			IRLW.logger.catching(e);
 			IRLW.logger.error("Caching directory doesn't seem to be valid, we will use a temporary one.");
 			IRLW.logger.error("Make sure your config is correct!");
 			IRLW.cacheManager = new CacheManager();
-			
 		}
 		IRLW.cacheManager.startWorker();
 		
 		IRLW.logger.info("Registering world type: " + IRLW.WORLD_TYPE_NAME);
 		new IRLWorldType(IRLW.WORLD_TYPE_NAME); //Instantiating is enough
-		IRLW.proxy.preinit(event);
+		//IRLW.proxy.preinit(event); //FIXME 1.14.4 - Proxy preinit replacement
 		
-		IRLW.proxy.init(event);
+		//IRLW.proxy.init(event); //FIXME 1.14.4 - Proxy init replacement
 		
 		IRLW.cacheManager.cacheAsync(new MapboxElevationTile(0, 0, 0));
 		
@@ -146,7 +159,7 @@ public class IRLW {
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
 		IRLW.logger.debug("IRLW serverStart...");
-		IRLW.proxy.serverStart(event);
+		//IRLW.proxy.serverStart(event); //FIXME 1.14.4 - Proxy server start replacement
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (ts subscribing to the MOD

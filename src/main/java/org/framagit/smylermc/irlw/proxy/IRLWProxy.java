@@ -19,10 +19,6 @@
 package org.framagit.smylermc.irlw.proxy;
 
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 /**
  * @author SmylerMC
@@ -31,13 +27,13 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
  */
 public interface IRLWProxy {
 	
-	public void preinit(FMLPreInitializationEvent event);
-	
-	public void init(FMLInitializationEvent event);
-	
-	public void postinit(FMLPostInitializationEvent event);
-	
-	public void serverStart(FMLServerStartingEvent event);
+//	public void preinit(FMLPreInitializationEvent event);
+//	
+//	public void init(FMLInitializationEvent event);
+//	
+//	public void postinit(FMLPostInitializationEvent event);
+//	
+//	public void serverStart(FMLServerStartingEvent event);
 	
 	public void stopServer(); // Called when there is no other choice than stopping the server
 	
