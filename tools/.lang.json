@@ -1,0 +1,11 @@
+{
+    "generator.irlworld": "Monde R\u00e9el",
+    "irlwworldgui.title": "Customization du monde IRL",
+    "irlwworldgui.token": "Json du generateur:",
+    "irlwworldgui.text1": "Cette page devrait \u00eatre am\u00e9lior\u00e9e dans le futur.",
+    "irlwconfiggui.text1": "Le mod utilise l'API g\u00e9ographique mapbox pour g\u00e9n\u00e9rer le monde.",
+    "irlwconfiggui.text2": "Vous devrez cr\u00e9er un compte Mapbox gratuit ici:",
+    "irlwconfiggui.text3": "https://www.mapbox.com",
+    "irlwconfiggui.text4": "Rendez vous ensuite dans Account, puis dans API access token et g\u00e9n\u00e9rez un token.",
+    "item.world_map.name": "Planisph\u00e8re"
+}
