@@ -38,7 +38,7 @@ import net.minecraft.util.ResourceLocation;
  */
 public class SimpleMapWidget extends Widget {
 
-	private int x, y, size, px = 0, py = 0, pcolor;
+	private int size, px = 0, py = 0, pcolor;
 	public boolean showPointer = false;
 	
 	public SimpleMapWidget(int x, int y, int size) {
