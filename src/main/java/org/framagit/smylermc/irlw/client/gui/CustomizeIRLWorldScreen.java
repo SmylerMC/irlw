@@ -89,6 +89,7 @@ public class CustomizeIRLWorldScreen extends Screen{
         
         generatorJson = new TextFieldWidget(this.font, this.width / 2 - 50, 40, 200, 20, "generator parameters");//TODO Localization
         generatorJson.setMaxStringLength(500);
+        this.children.add(this.generatorJson);
         
         //FIXME 1.14.4 - Customize IRLW World zoom GUI Slider
 //        this.buttons.add(new GuiSlider(this, ZOOM_ID, this.width / 2 - 175, 70, "slider", 0f, 20f, (float) this.zoomLevel, new GuiSlider.FormatHelper() {
@@ -106,6 +107,8 @@ public class CustomizeIRLWorldScreen extends Screen{
         latitudeField.setMaxStringLength(20);
         longitudeField.setText("" + this.spawnLong);
         latitudeField.setText("" + this.spawnLat);
+        this.children.add(this.longitudeField);
+        this.children.add(this.latitudeField);
         
         this.mapButton = new Button(this.width/2 - 160, 100, 50, 50, "", this::letUserPickCoordinates);
         this.addButton(mapButton);
@@ -140,22 +143,21 @@ public class CustomizeIRLWorldScreen extends Screen{
     	this.drawString(this.font, I18n.format("irlwworldgui.spawn_lat"), this.width / 2 - 100, 136, -1);
     	long worldSize = 1<<(this.zoomLevel + 8);
     	this.drawCenteredString(this.font, I18n.format("irlwworldgui.world_size", worldSize), this.width / 2 + 98, 76, 0xFFFFFFFF);
-    	//this.smap.render(); //FIXME 1.14.4 - Remove if effectively useless
     	this.smap.setPointerLongLat(this.spawnLong, this.spawnLat, 0xFFFF0000);
     	if(this.mapButton.isMouseOver(mouseX, mouseY)) {
     		this.renderTooltip(I18n.format("irlwworldgui.spawn_picking"), mouseX, mouseY);
     	}
     }
     
-    /*//TODO Remove if effectively not needed
-    /**
-     * Called from the main game loop to update the screen.
-     *
-    public void updateScreen(){
-    	this.generatorJson.updateCursorCounter(); //Don't know what it really does, but present in existing game guis :(
-    	super.updateScreen();
+
+    @Override
+    public void tick() {
+    	super.tick();
+    	this.generatorJson.tick();
+    	this.longitudeField.tick();
+    	this.latitudeField.tick();
     }
-    */
+    
     
     
     /**
@@ -221,47 +223,37 @@ public class CustomizeIRLWorldScreen extends Screen{
     }
 
 //TODO Make sure this is effectively useless
-//
-//    /**
-//     * Called by the game when a key is pressed, the event has to be passed to the guis's components if the focus is on them.
-//     */
-//    @Override
-//	public boolean keyPressed(int keyCode, int p_keyPressed_2_, int p_keyPressed_3_){
-//    	if(this.generatorJson.isFocused()){
-//    		String txt = this.generatorJson.getText();
-//    		this.generatorJson.textboxKeyTyped(typedChar, keyCode);
-//    		if(!txt.equals(generatorJson.getText())) {
-//    			this.updateValuesFromJson();
-//    		}
-//    	}
-//    	if(this.longitudeField.isFocused()){
-//    		String txt = this.longitudeField.getText();
-//    		this.longitudeField.textboxKeyTyped(typedChar, keyCode);
-//    		if(!txt.equals(longitudeField.getText())) {
-//    			try {
-//    				this.spawnLong = Double.parseDouble(this.longitudeField.getText());
-//    				this.longitudeField.setTextColor(0xFFFFFF);
-//    				this.updateJsonFromValues();
-//    			}catch(NumberFormatException e) {
-//    				this.longitudeField.setTextColor(0xFF3000);
-//    			}
-//    		}
-//    	}
-//    	if(this.latitudeField.isFocused()){
-//    		String txt = this.latitudeField.getText();
-//    		this.latitudeField.textboxKeyTyped(typedChar, keyCode);
-//    		if(!txt.equals(latitudeField.getText())) {
-//    			try {
-//    				this.spawnLat = Double.parseDouble(this.latitudeField.getText());
-//    				this.latitudeField.setTextColor(0xFFFFFF);
-//    				this.updateJsonFromValues();
-//    			}catch(NumberFormatException e) {
-//    				this.latitudeField.setTextColor(0xFF3000);
-//    			}
-//    		}
-//    	}
-//    	super.keyPressed(typedChar, keyCode);
-//    }
+
+    /**
+     * Called by the game when a key is pressed, the event has to be passed to the guis's components if the focus is on them.
+     */
+    @Override
+	public boolean keyPressed(int keyCode, int p_keyPressed_2_, int p_keyPressed_3_){
+    	//FIXME There is often a one key delay when keeping json and other text fields sync
+    	boolean code = super.keyPressed(keyCode, p_keyPressed_2_, p_keyPressed_3_);
+    	if(generatorJson.isFocused()) {
+    		this.updateValuesFromJson();
+    	}
+    	if(this.longitudeField.isFocused()) {
+    		try {
+    			this.spawnLong = Double.parseDouble(this.longitudeField.getText());
+    			this.longitudeField.setTextColor(0xFFFFFF);
+    			this.updateJsonFromValues();
+    		}catch(NumberFormatException e) {
+    			this.longitudeField.setTextColor(0xFF3000);
+    		}
+    	}
+    	if(this.latitudeField.isFocused()){
+    		try {
+    			this.spawnLat = Double.parseDouble(this.latitudeField.getText());
+    			this.latitudeField.setTextColor(0xFFFFFF);
+    			this.updateJsonFromValues();
+    		}catch(NumberFormatException e) {
+    			this.latitudeField.setTextColor(0xFF3000);
+   			}
+    	}
+    	return code;
+    }
     
 
 //FIXME 1.14.4 Customize world zoom slider
