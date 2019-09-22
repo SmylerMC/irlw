@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.maps.exceptions.InvalidMapboxSessionException;
@@ -53,7 +53,7 @@ public class CacheManager implements Runnable {
 	
 	private Thread worker;
 	private volatile boolean workerRunning;
-	private LinkedList<Cachable> toCacheAsync = new LinkedList<Cachable>();
+	private ConcurrentLinkedQueue<Cachable> toCacheAsync = new ConcurrentLinkedQueue<Cachable>();
 	
 	private File cachingDirectory;
 	
@@ -118,7 +118,7 @@ public class CacheManager implements Runnable {
 						synchronized(IRLW.logger) {
 							IRLW.logger.error("Failed to cache a file due to a forbiden response from the Mapbox API");
 						}
-						IRLW.proxy.onInInvalidMapboxToken(); //TODO implement on proxys
+						//IRLW.proxy.onInInvalidMapboxToken(); //TODO implement on proxys
 					}
 				}
 				try {Thread.sleep(sleep);} catch (InterruptedException e) {IRLW.logger.catching(e);}
@@ -292,7 +292,7 @@ public class CacheManager implements Runnable {
 	 */
 	public void clearQueue() {
 		synchronized(this.toCacheAsync) {
-			this.toCacheAsync = new LinkedList<Cachable>();
+			this.toCacheAsync = new ConcurrentLinkedQueue<Cachable>();
 		}
 	}
 	
