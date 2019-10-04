@@ -1,16 +1,17 @@
 {
     "generator.irlworld": "Real World",
     "generator.irlworld.info": "Use online databases to recreate the earth!",
+
     "irlwworldgui.title": "IRLW World customization",
-    "irlwworldgui.json": "Generator's json:",
-    "irlwworldgui.zoom_level": "Zoom level",
+    "irlwworldgui.json": "Generation json settings:",
+    "irlwworldgui.zoom_level": "Zoom level: ",
     "irlwworldgui.spawn_picking": "Click to pick a spawn point (or not, this is still in early dev)",
     "irlwworldgui.spawn_long": "Spawn longitude:",
     "irlwworldgui.spawn_lat": "Spawn latitude:",
     "irlwworldgui.world_size": "World size: %s blocks",
     "irlwworldgui.randomize_spawn": "Randomize spawn point",
     "irlwworldgui.preset_spawn": "Select a preset spawn point",
-    "irlwworldgui.text1": "This GUI should be improved in the future.",
+
     "irlwtokengui.title": "Mapbox API token",
     "irlwtokengui.token": "API token:",
     "irlwtokengui.cheking": "Checking token...",

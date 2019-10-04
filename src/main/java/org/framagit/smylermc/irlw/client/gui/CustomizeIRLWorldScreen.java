@@ -22,17 +22,20 @@ package org.framagit.smylermc.irlw.client.gui;
 
 import java.util.Random;
 
+import org.framagit.smylermc.irlw.client.gui.widget.DynamicOptionSlider;
 import org.framagit.smylermc.irlw.client.gui.widget.SimpleMapWidget;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.settings.SliderPercentageOption;
 import net.minecraft.util.text.TranslationTextComponent;
 
 
@@ -52,6 +55,7 @@ public class CustomizeIRLWorldScreen extends Screen{
 	private TextFieldWidget	 generatorJson;
 	private TextFieldWidget longitudeField;
 	private TextFieldWidget latitudeField;
+	private DynamicOptionSlider zoomSlider;
 	
 	private double spawnLong = 0;
 	private double spawnLat = 0;
@@ -59,6 +63,7 @@ public class CustomizeIRLWorldScreen extends Screen{
 	private SimpleMapWidget smap;
 	private Button mapButton;
 	private int zoomLevel;
+	private static final int MAX_ZOOM_LEVEL = 15;
 	
 
 	/**
@@ -68,7 +73,7 @@ public class CustomizeIRLWorldScreen extends Screen{
 	 * @param guiCreateWorld
 	 */
     public CustomizeIRLWorldScreen(Minecraft mc, CreateWorldScreen guiCreateWorld) {
-    	super(new TranslationTextComponent("")); //FIXME 1.14.4 - Customize IRL world screen title
+    	super(new TranslationTextComponent("irlwworldgui.title"));
 		this.minecraft = mc;
 		this.createWorldGui = guiCreateWorld;
 	}
@@ -87,22 +92,22 @@ public class CustomizeIRLWorldScreen extends Screen{
         //Done button
         this.addButton(new Button(this.width / 2 - 75, this.height - 28, 150, 20, I18n.format("gui.done", new Object[0]), this::done));
         
-        generatorJson = new TextFieldWidget(this.font, this.width / 2 - 50, 40, 200, 20, "generator parameters");//TODO Localization
+        generatorJson = new TextFieldWidget(this.font, this.width / 2 - 50, 40, 200, 20, I18n.format("irlwworldgui.json"));
         generatorJson.setMaxStringLength(500);
         this.children.add(this.generatorJson);
         
-        //FIXME 1.14.4 - Customize IRLW World zoom GUI Slider
-//        this.buttons.add(new GuiSlider(this, ZOOM_ID, this.width / 2 - 175, 70, "slider", 0f, 20f, (float) this.zoomLevel, new GuiSlider.FormatHelper() {
-//
-//			@Override
-//			public String getText(int id, String name, float value) {
-//				return I18n.format("irlwworldgui.zoom_level") + ": " + zoomLevel;
-//			}
-//			
-//		}));
+        this.zoomSlider = new DynamicOptionSlider(this.minecraft.gameSettings, this.width / 2 - 175, 70, 200, 20,
+        		new SliderPercentageOption (
+        				I18n.format("irlwworldgui.zoom_level"), 0, MAX_ZOOM_LEVEL, 1,
+        				this::getZoomLevel,
+        				this::setZoomLevel,
+        				(setting, option) -> I18n.format("irlwworldgui.zoom_level") + this.getZoomLevel()
+        			)
+        	);
+        this.addButton(zoomSlider);
         
-        longitudeField = new TextFieldWidget(this.font, this.width / 2 + 15, 100, 170, 20, "longitude"); //TODO Localization
-        latitudeField = new TextFieldWidget(this.font, this.width / 2 + 15, 130, 170, 20, "latitude"); //TODO Localization
+        longitudeField = new TextFieldWidget(this.font, this.width / 2 + 15, 100, 170, 20, I18n.format("irlwworldgui.spawn_long"));
+        latitudeField = new TextFieldWidget(this.font, this.width / 2 + 15, 130, 170, 20, I18n.format("irlwworldgui.spawn_lat"));
         longitudeField.setMaxStringLength(20);
         latitudeField.setMaxStringLength(20);
         longitudeField.setText("" + this.spawnLong);
@@ -119,7 +124,7 @@ public class CustomizeIRLWorldScreen extends Screen{
         this.addButton(new Button(this.width/2 - 160, 170, 150, 20, I18n.format("irlwworldgui.randomize_spawn"), this::populateRandomCoordinates));
 
         Button presetButton = new Button(this.width/2 + 10, 170, 150, 20, I18n.format("irlwworldgui.preset_spawn"), null); //TODO Implement preset spawn points
-        presetButton.active = false; //FIXME 1.14.4 - Check is active is what we where looking for
+        presetButton.active = false;
         this.addButton(presetButton);
         
         this.updateJsonFromValues();
@@ -145,7 +150,8 @@ public class CustomizeIRLWorldScreen extends Screen{
     	this.drawCenteredString(this.font, I18n.format("irlwworldgui.world_size", worldSize), this.width / 2 + 98, 76, 0xFFFFFFFF);
     	this.smap.setPointerLongLat(this.spawnLong, this.spawnLat, 0xFFFF0000);
     	if(this.mapButton.isMouseOver(mouseX, mouseY)) {
-    		this.renderTooltip(I18n.format("irlwworldgui.spawn_picking"), mouseX, mouseY);
+    		//TODO Implement dynamic map
+    		//this.renderTooltip(I18n.format("irlwworldgui.spawn_picking"), mouseX, mouseY);
     	}
     }
     
@@ -156,6 +162,35 @@ public class CustomizeIRLWorldScreen extends Screen{
     	this.generatorJson.tick();
     	this.longitudeField.tick();
     	this.latitudeField.tick();
+    	if(this.generatorJson.isFocused()) {
+    		this.updateValuesFromJson();
+    	}
+    	if(this.longitudeField.isFocused()) {
+    		try {
+    			double spawnLong = Double.parseDouble(this.longitudeField.getText());
+    			if(Math.abs(spawnLong) > 180) {
+    				throw new NumberFormatException();
+    			}
+    			this.spawnLong = spawnLong;
+    			this.longitudeField.setTextColor(0xFFFFFF);
+    			this.updateJsonFromValues();
+    		}catch(NumberFormatException e) {
+    			this.longitudeField.setTextColor(0xFF3000);
+    		}
+    	}
+    	if(this.latitudeField.isFocused()){
+    		try {
+    			double spawnLat = Double.parseDouble(this.latitudeField.getText());
+    			if(Math.abs(spawnLat) > 85) {
+    				throw new NumberFormatException();
+    			}
+    			this.spawnLat = spawnLat;
+    			this.latitudeField.setTextColor(0xFFFFFF);
+    			this.updateJsonFromValues();
+    		}catch(NumberFormatException e) {
+    			this.latitudeField.setTextColor(0xFF3000);
+   			}
+    	}
     }
     
     
@@ -168,8 +203,7 @@ public class CustomizeIRLWorldScreen extends Screen{
     private void done(Button b) {
     	this.save();
 		this.minecraft.displayGuiScreen(this.createWorldGui) ;
-		//this.mc.updateDisplay(); //FIXME 1.14.4 - Why was this here ?
-    } //TODO
+    }
     
     
     
@@ -180,7 +214,7 @@ public class CustomizeIRLWorldScreen extends Screen{
      */
     private void populateRandomCoordinates(Button b) {
 		Random random = new Random();
-		this.spawnLat = (random.nextDouble() - .5) * 180;
+		this.spawnLat = (random.nextDouble() - .5) * 170;
 		this.spawnLong = (random.nextDouble() - .5) * 360;
 		this.latitudeField.setText("" + this.spawnLat);
 		this.longitudeField.setText("" + this.spawnLong);
@@ -195,7 +229,8 @@ public class CustomizeIRLWorldScreen extends Screen{
      * @param b
      */
     private void letUserPickCoordinates(Button b) {
-    	Minecraft.getInstance().displayGuiScreen(new PickLocationScreen(this));
+    	//TODO Implement
+    	//Minecraft.getInstance().displayGuiScreen(new PickLocationScreen(this));
     }
     
     
@@ -215,59 +250,19 @@ public class CustomizeIRLWorldScreen extends Screen{
      */
     @Override
 	public boolean mouseClicked(double mouseX, double mouseY, int mouseButton){
-    	//FIXME 1.14.4 - Test if everything works properly
     	this.generatorJson.mouseClicked(mouseX, mouseY, mouseButton);
     	this.latitudeField.mouseClicked(mouseX, mouseY, mouseButton);
     	this.longitudeField.mouseClicked(mouseX, mouseY, mouseButton);
     	return super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-//TODO Make sure this is effectively useless
-
     /**
      * Called by the game when a key is pressed, the event has to be passed to the guis's components if the focus is on them.
      */
     @Override
 	public boolean keyPressed(int keyCode, int p_keyPressed_2_, int p_keyPressed_3_){
-    	//FIXME There is often a one key delay when keeping json and other text fields sync
-    	boolean code = super.keyPressed(keyCode, p_keyPressed_2_, p_keyPressed_3_);
-    	if(generatorJson.isFocused()) {
-    		this.updateValuesFromJson();
-    	}
-    	if(this.longitudeField.isFocused()) {
-    		try {
-    			this.spawnLong = Double.parseDouble(this.longitudeField.getText());
-    			this.longitudeField.setTextColor(0xFFFFFF);
-    			this.updateJsonFromValues();
-    		}catch(NumberFormatException e) {
-    			this.longitudeField.setTextColor(0xFF3000);
-    		}
-    	}
-    	if(this.latitudeField.isFocused()){
-    		try {
-    			this.spawnLat = Double.parseDouble(this.latitudeField.getText());
-    			this.latitudeField.setTextColor(0xFFFFFF);
-    			this.updateJsonFromValues();
-    		}catch(NumberFormatException e) {
-    			this.latitudeField.setTextColor(0xFF3000);
-   			}
-    	}
-    	return code;
+    	return super.keyPressed(keyCode, p_keyPressed_2_, p_keyPressed_3_);
     }
-    
-
-//FIXME 1.14.4 Customize world zoom slider
-//	@Override
-//	public void setEntryValue(int id, float value) {
-//		switch(id) {
-//		
-//		case ZOOM_ID:
-//			this.zoomLevel = (int) value;
-//			break;
-//		}
-//		
-//		this.updateJsonFromValues();
-//	}
 	
 	public void updateJsonFromValues() {
         generatorJson.setText("{\"zoomlevel\": " + this.zoomLevel + ", \"spawn_long\": " + this.spawnLong + ", \"spawn_lat\": " + this.spawnLat + "}");
@@ -279,6 +274,8 @@ public class CustomizeIRLWorldScreen extends Screen{
 		try{
     		JsonObject jsonObject = parser.parse(this.generatorJson.getText()).getAsJsonObject();
     		this.zoomLevel = jsonObject.get("zoomlevel").getAsInt();
+    		if(zoomLevel > MAX_ZOOM_LEVEL)
+    			throw new Exception();
     		this.spawnLong = jsonObject.get("spawn_long").getAsDouble();
     		this.spawnLat = jsonObject.get("spawn_lat").getAsDouble();
     	}catch(Exception e){
@@ -288,11 +285,51 @@ public class CustomizeIRLWorldScreen extends Screen{
 		
 		this.generatorJson.setTextColor(0xFFFFFF);
 		
-		//this.guiSlider.setValue(); //FIXME 1.14.4 - World zoom slider Slider
-		
 		this.longitudeField.setText("" + this.spawnLong);
 		this.latitudeField.setText("" + this.spawnLat);
 		
+		this.zoomSlider.updateValue();;
+		
+	}
+
+
+	public double getSpawnLong() {
+		return spawnLong;
+	}
+
+
+	public void setSpawnLong(double spawnLong) {
+		this.spawnLong = spawnLong;
+	}
+
+
+	public double getSpawnLat() {
+		return spawnLat;
+	}
+
+
+	public void setSpawnLat(double spawnLat) {
+		this.spawnLat = spawnLat;
+	}
+
+
+	public int getZoomLevel() {
+		return zoomLevel;
+	}
+
+
+	public void setZoomLevel(int zoomLevel) {
+		this.zoomLevel = zoomLevel;
+	}
+	
+	private double getZoomLevel(GameSettings settings) {
+		return zoomLevel;
+	}
+
+	private double setZoomLevel(GameSettings settings, double zoomLevel) {
+		this.zoomLevel = (int) zoomLevel;
+		this.updateJsonFromValues();
+		return this.zoomLevel;
 	}
 	
 }
