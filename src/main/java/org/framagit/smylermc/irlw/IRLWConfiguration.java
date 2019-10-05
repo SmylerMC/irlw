@@ -37,8 +37,8 @@ import net.minecraftforge.fml.config.ModConfig;
 @Mod.EventBusSubscriber
 public class IRLWConfiguration{
 	
-	public static final String CATEGORY_GENERAL = "general";
-	public static final String CATEGORY_MAPBOX = "mapbox";
+	private static final String CATEGORY_GENERAL = "general";
+	private static final String CATEGORY_MAPBOX = "mapbox";
 	
 	public static final ForgeConfigSpec COMMON_CONFIG;
 	private static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
@@ -48,16 +48,16 @@ public class IRLWConfiguration{
 
 	
 	public static ForgeConfigSpec.ConfigValue<String> mapboxToken;
-	public static final String MAPBOX_TOKEN_COMMENT = "The mods needs access to Mapbox's online API to work, you need to create an account at mapbox.com";
+	private static final String MAPBOX_TOKEN_COMMENT = "The mods needs access to Mapbox's online API to work, you need to create an account at mapbox.com";
 	
 	public static ForgeConfigSpec.BooleanValue ignoreInvalidTokens;
-	public static final String IGNORE_TOKEN_COMMENT = "Should we ask if you want to set a mapbox token.";
+	private static final String IGNORE_TOKEN_COMMENT = "Should we ask if you want to set a mapbox token.";
 		
 	public static ForgeConfigSpec.ConfigValue<String> cachingDir;
-	public static final String CACHE_DIR_COMMENT = "Where to cache our files";
+	private static final String CACHE_DIR_COMMENT = "Where to cache our files";
 	
 	public static ForgeConfigSpec.IntValue defaultZoomLevel;
-	public static final String DEFAULT_ZOOM_COMMENT = "The default zoom level to use when generating a world";
+	private static final String DEFAULT_ZOOM_COMMENT = "The default zoom level to use when generating a world";
 	
 	static {
 		COMMON_BUILDER.comment("General Settings").push(IRLWConfiguration.CATEGORY_GENERAL);

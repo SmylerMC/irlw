@@ -24,9 +24,8 @@ import java.util.Random;
 
 import org.framagit.smylermc.irlw.client.gui.widget.DynamicOptionSlider;
 import org.framagit.smylermc.irlw.client.gui.widget.SimpleMapWidget;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.framagit.smylermc.irlw.world.gen.IRLWGenerationSettings;
+import org.framagit.smylermc.irlw.world.gen.IRLWGenerationSettings.InvalidSettingsException;
 
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
@@ -39,10 +38,8 @@ import net.minecraft.client.settings.SliderPercentageOption;
 import net.minecraft.util.text.TranslationTextComponent;
 
 
-//TODO world customization GUI Does not remember settings if closed and reopened
-
 /**
- * This will change a lot in the future, as it is not the current main focus
+ * 
  * 
  * @author Smyler
  *
@@ -51,19 +48,16 @@ public class CustomizeIRLWorldScreen extends Screen{
 	
 	
 	private CreateWorldScreen createWorldGui;
+	
+	private IRLWGenerationSettings generationSettings;
 			
 	private TextFieldWidget	 generatorJson;
 	private TextFieldWidget longitudeField;
 	private TextFieldWidget latitudeField;
 	private DynamicOptionSlider zoomSlider;
 	
-	private double spawnLong = 0;
-	private double spawnLat = 0;
-	
 	private SimpleMapWidget smap;
 	private Button mapButton;
-	private int zoomLevel;
-	private static final int MAX_ZOOM_LEVEL = 15;
 	
 
 	/**
@@ -76,6 +70,12 @@ public class CustomizeIRLWorldScreen extends Screen{
     	super(new TranslationTextComponent("irlwworldgui.title"));
 		this.minecraft = mc;
 		this.createWorldGui = guiCreateWorld;
+		try {
+			this.generationSettings = new IRLWGenerationSettings(this.createWorldGui.chunkProviderSettingsJson);
+		} catch(IRLWGenerationSettings.InvalidSettingsException e) {
+			
+		}
+		
 	}
 
 
@@ -92,16 +92,16 @@ public class CustomizeIRLWorldScreen extends Screen{
         //Done button
         this.addButton(new Button(this.width / 2 - 75, this.height - 28, 150, 20, I18n.format("gui.done", new Object[0]), this::done));
         
-        generatorJson = new TextFieldWidget(this.font, this.width / 2 - 50, 40, 200, 20, I18n.format("irlwworldgui.json"));
+        generatorJson = new TextFieldWidget(this.font, this.width / 2 - 20, 40, 205, 20, I18n.format("irlwworldgui.json"));
         generatorJson.setMaxStringLength(500);
         this.children.add(this.generatorJson);
         
         this.zoomSlider = new DynamicOptionSlider(this.minecraft.gameSettings, this.width / 2 - 175, 70, 200, 20,
         		new SliderPercentageOption (
-        				I18n.format("irlwworldgui.zoom_level"), 0, MAX_ZOOM_LEVEL, 1,
+        				I18n.format("irlwworldgui.zoom_level"), 0, IRLWGenerationSettings.MAX_ZOOM_LEVEL, 1,
         				this::getZoomLevel,
         				this::setZoomLevel,
-        				(setting, option) -> I18n.format("irlwworldgui.zoom_level") + this.getZoomLevel()
+        				(setting, option) -> I18n.format("irlwworldgui.zoom_level") + this.generationSettings.getZoomLevel()
         			)
         	);
         this.addButton(zoomSlider);
@@ -110,8 +110,8 @@ public class CustomizeIRLWorldScreen extends Screen{
         latitudeField = new TextFieldWidget(this.font, this.width / 2 + 15, 130, 170, 20, I18n.format("irlwworldgui.spawn_lat"));
         longitudeField.setMaxStringLength(20);
         latitudeField.setMaxStringLength(20);
-        longitudeField.setText("" + this.spawnLong);
-        latitudeField.setText("" + this.spawnLat);
+        longitudeField.setText("" + this.generationSettings.getSpawnLong());
+        latitudeField.setText("" + this.generationSettings.getSpawnLat());
         this.children.add(this.longitudeField);
         this.children.add(this.latitudeField);
         
@@ -143,12 +143,12 @@ public class CustomizeIRLWorldScreen extends Screen{
     	this.longitudeField.renderButton(mouseX, mouseY, partialTicks);
     	this.latitudeField.renderButton(mouseX, mouseY, partialTicks);
     	this.drawCenteredString(this.font, I18n.format("irlwworldgui.title", new Object[0]), this.width / 2, 20, -1);
-    	this.drawString(this.font, I18n.format("irlwworldgui.json"), this.width / 2 - 150, 46, -1);
+    	this.drawString(this.font, I18n.format("irlwworldgui.json"), this.width / 2 - 160, 46, -1);
     	this.drawString(this.font, I18n.format("irlwworldgui.spawn_long"), this.width / 2 - 100, 106, -1);
     	this.drawString(this.font, I18n.format("irlwworldgui.spawn_lat"), this.width / 2 - 100, 136, -1);
-    	long worldSize = 1<<(this.zoomLevel + 8);
+    	long worldSize = 1<<(this.generationSettings.getZoomLevel() + 8);
     	this.drawCenteredString(this.font, I18n.format("irlwworldgui.world_size", worldSize), this.width / 2 + 98, 76, 0xFFFFFFFF);
-    	this.smap.setPointerLongLat(this.spawnLong, this.spawnLat, 0xFFFF0000);
+    	this.smap.setPointerLongLat(this.generationSettings.getSpawnLong(), this.generationSettings.getSpawnLat(), 0xFFFF0000);
     	if(this.mapButton.isMouseOver(mouseX, mouseY)) {
     		//TODO Implement dynamic map
     		//this.renderTooltip(I18n.format("irlwworldgui.spawn_picking"), mouseX, mouseY);
@@ -167,27 +167,19 @@ public class CustomizeIRLWorldScreen extends Screen{
     	}
     	if(this.longitudeField.isFocused()) {
     		try {
-    			double spawnLong = Double.parseDouble(this.longitudeField.getText());
-    			if(Math.abs(spawnLong) > 180) {
-    				throw new NumberFormatException();
-    			}
-    			this.spawnLong = spawnLong;
+    			this.generationSettings.setSpawnLong(Double.parseDouble(this.longitudeField.getText()));
     			this.longitudeField.setTextColor(0xFFFFFF);
     			this.updateJsonFromValues();
-    		}catch(NumberFormatException e) {
+    		}catch(NumberFormatException | InvalidSettingsException e) {
     			this.longitudeField.setTextColor(0xFF3000);
     		}
     	}
     	if(this.latitudeField.isFocused()){
     		try {
-    			double spawnLat = Double.parseDouble(this.latitudeField.getText());
-    			if(Math.abs(spawnLat) > 85) {
-    				throw new NumberFormatException();
-    			}
-    			this.spawnLat = spawnLat;
+    			this.generationSettings.setSpawnLat(Double.parseDouble(this.latitudeField.getText()));
     			this.latitudeField.setTextColor(0xFFFFFF);
     			this.updateJsonFromValues();
-    		}catch(NumberFormatException e) {
+    		}catch(NumberFormatException | InvalidSettingsException e) {
     			this.latitudeField.setTextColor(0xFF3000);
    			}
     	}
@@ -206,19 +198,27 @@ public class CustomizeIRLWorldScreen extends Screen{
     }
     
     
-    
+    private void populateRandomCoordinates(Button b) {
+    	this.populateRandomCoordinates();
+    }
     /**
      * Called when the random spawn point button is pressed
      * 
-     * @param b
      */
-    private void populateRandomCoordinates(Button b) {
+    public void populateRandomCoordinates() {
 		Random random = new Random();
-		this.spawnLat = (random.nextDouble() - .5) * 170;
-		this.spawnLong = (random.nextDouble() - .5) * 360;
-		this.latitudeField.setText("" + this.spawnLat);
-		this.longitudeField.setText("" + this.spawnLong);
+		try {
+			this.generationSettings.setSpawnLat((random.nextDouble() - .5) * 170);
+			this.generationSettings.setSpawnLong((random.nextDouble() - .5) * 360);
+		} catch (InvalidSettingsException e) {
+			//It should never happen if the random values are generated properly
+			e.printStackTrace();
+		}
+		this.latitudeField.setText("" + this.generationSettings.getSpawnLat());
+		this.longitudeField.setText("" + this.generationSettings.getSpawnLong());
 		this.updateJsonFromValues();
+		this.longitudeField.setTextColor(0xFFFFFF);
+		this.latitudeField.setTextColor(0xFFFFFF);
     }
     
     
@@ -240,7 +240,7 @@ public class CustomizeIRLWorldScreen extends Screen{
      */
     private void save(){
     	//FIXME 1.14.4 - generator's json has changed, figure out how it works and implement it
-    	//this.createWorldGui.chunkProviderSettingsJson = this.generatorJson.getText(); 
+    	this.createWorldGui.chunkProviderSettingsJson = this.generationSettings.toNBT(); 
     }
     
     
@@ -265,19 +265,12 @@ public class CustomizeIRLWorldScreen extends Screen{
     }
 	
 	public void updateJsonFromValues() {
-        generatorJson.setText("{\"zoomlevel\": " + this.zoomLevel + ", \"spawn_long\": " + this.spawnLong + ", \"spawn_lat\": " + this.spawnLat + "}");
+        generatorJson.setText(this.generationSettings.toJson());
 	}
 	
 	public void updateValuesFromJson() {
-		
-		JsonParser parser = new JsonParser();
 		try{
-    		JsonObject jsonObject = parser.parse(this.generatorJson.getText()).getAsJsonObject();
-    		this.zoomLevel = jsonObject.get("zoomlevel").getAsInt();
-    		if(zoomLevel > MAX_ZOOM_LEVEL)
-    			throw new Exception();
-    		this.spawnLong = jsonObject.get("spawn_long").getAsDouble();
-    		this.spawnLat = jsonObject.get("spawn_lat").getAsDouble();
+			this.generationSettings = new IRLWGenerationSettings(this.generatorJson.getText());
     	}catch(Exception e){
     		this.generatorJson.setTextColor(0xFF3000);
     		return;
@@ -285,51 +278,26 @@ public class CustomizeIRLWorldScreen extends Screen{
 		
 		this.generatorJson.setTextColor(0xFFFFFF);
 		
-		this.longitudeField.setText("" + this.spawnLong);
-		this.latitudeField.setText("" + this.spawnLat);
+		this.longitudeField.setText("" + this.generationSettings.getSpawnLong());
+		this.latitudeField.setText("" + this.generationSettings.getSpawnLat());
 		
-		this.zoomSlider.updateValue();;
+		this.zoomSlider.updateValue();
 		
-	}
-
-
-	public double getSpawnLong() {
-		return spawnLong;
-	}
-
-
-	public void setSpawnLong(double spawnLong) {
-		this.spawnLong = spawnLong;
-	}
-
-
-	public double getSpawnLat() {
-		return spawnLat;
-	}
-
-
-	public void setSpawnLat(double spawnLat) {
-		this.spawnLat = spawnLat;
-	}
-
-
-	public int getZoomLevel() {
-		return zoomLevel;
-	}
-
-
-	public void setZoomLevel(int zoomLevel) {
-		this.zoomLevel = zoomLevel;
 	}
 	
 	private double getZoomLevel(GameSettings settings) {
-		return zoomLevel;
+		return this.generationSettings.getZoomLevel();
 	}
 
 	private double setZoomLevel(GameSettings settings, double zoomLevel) {
-		this.zoomLevel = (int) zoomLevel;
+		try {
+			this.generationSettings.setZoomLevel((int) zoomLevel);
+		} catch (InvalidSettingsException e) {
+			//It should never happen if the slider has been set correctly
+			e.printStackTrace();
+		}
 		this.updateJsonFromValues();
-		return this.zoomLevel;
+		return this.generationSettings.getZoomLevel();
 	}
 	
 }
