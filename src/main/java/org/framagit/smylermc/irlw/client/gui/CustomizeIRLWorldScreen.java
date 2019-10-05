@@ -239,7 +239,6 @@ public class CustomizeIRLWorldScreen extends Screen{
      * Saves the gui's settings to the configuration object and then saves it.
      */
     private void save(){
-    	//FIXME 1.14.4 - generator's json has changed, figure out how it works and implement it
     	this.createWorldGui.chunkProviderSettingsJson = this.generationSettings.toNBT(); 
     }
     
