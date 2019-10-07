@@ -20,9 +20,19 @@ package org.framagit.smylermc.irlw.world;
 
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.client.gui.CustomizeIRLWorldScreen;
+import org.framagit.smylermc.irlw.world.gen.IRLWChunkGenerator;
+import org.framagit.smylermc.irlw.world.gen.IRLWGenerationSettings;
+import org.framagit.smylermc.irlw.world.gen.IRLWGenerationSettings.InvalidSettingsException;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
+import net.minecraft.world.biome.provider.OverworldBiomeProvider;
+import net.minecraft.world.biome.provider.OverworldBiomeProviderSettings;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.storage.WorldInfo;
 
 /**
  * @author SmylerMC
@@ -61,21 +71,23 @@ public class IRLWorldType extends WorldType {
 //    }
     
     
-//	public ChunkGenerator createChunkGenerator(World world, String generatorOptions){
-////    	return new IRLWTestChunkGenerator(world); //TODO TEMP
-//    	JsonParser parser = new JsonParser();
-//		try{
-//    		JsonObject jsonObject = parser.parse(generatorOptions).getAsJsonObject();
-//    		int zoomLevel = jsonObject.get("zoomlevel").getAsInt();
-//    		double spawnLong = jsonObject.get("spawn_long").getAsDouble();
-//    		double spawnLat = jsonObject.get("spawn_lat").getAsDouble();
-//    		 return new IRLWChunkGenerator(world, world.getSeed(), spawnLong, spawnLat, zoomLevel);
-//    	}catch(Exception e){
-//    		IRLW.logger.error("Failed to create a chunk generator: ");
-//    		IRLW.logger.catching(e);
-//    		return new IRLWChunkGenerator(world, world.getSeed(), 0, 0, 0);
-//    	}
-//    }
+	@Override
+	public ChunkGenerator<IRLWGenerationSettings> createChunkGenerator(World world){
+//    	return new IRLWTestChunkGenerator(world, null, null); //TODO TEMP
+		WorldInfo worldInfo = world.getWorldInfo();
+		CompoundNBT nbt = worldInfo.getGeneratorOptions();
+		IRLWGenerationSettings settings;
+		try {
+			settings = new IRLWGenerationSettings(nbt);
+		} catch (InvalidSettingsException e) {
+			IRLW.logger.info("Could not read generation settings NBT, falling back to default");
+			settings = new IRLWGenerationSettings();
+		}
+		OverworldBiomeProviderSettings biomeSettings = new OverworldBiomeProviderSettings();
+		biomeSettings.setWorldInfo(worldInfo);
+		return new IRLWChunkGenerator(world, new OverworldBiomeProvider(biomeSettings), settings);
+
+    }
     
 	/**
      * Called when 'Create New World' button is pressed before starting game
