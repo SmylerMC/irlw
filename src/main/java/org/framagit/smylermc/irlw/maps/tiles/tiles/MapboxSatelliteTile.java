@@ -54,7 +54,7 @@ public class MapboxSatelliteTile extends MapboxWebTile {
 					+ this.getX() + "/"
 					+ this.getY() + ".png?"
 					+ "access_token="
-					+ IRLWConfiguration.mapboxToken);
+					+ IRLWConfiguration.mapboxToken.get());
 		} catch (MalformedURLException e) {
 			IRLW.logger.error("A terrain elevation tile has a malformed URL. Please report the bug at " + IRLW.AUTHOR_EMAIL);
 			IRLW.logger.error("Returning null and hopping the the best... See stacktrace:");
