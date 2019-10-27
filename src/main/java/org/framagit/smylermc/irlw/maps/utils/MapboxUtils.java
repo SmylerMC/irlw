@@ -48,7 +48,8 @@ public class MapboxUtils {
 	 * @return The height in meters
 	 */
 	public static float RGBAToHeight(int[] pixel){
-		return (float) (-10000 + (pixel[0] * 256 * 256 + pixel[1] * 256 + pixel[2]) * 0.1);
+//		return (float) (-10000 + (pixel[0] * 256 * 256 + pixel[1] * 256 + pixel[2]) * 0.1);
+		return (float) (-10000 + (pixel[2] * 256 * 256 + pixel[1] * 256 + pixel[0]) * 0.1);
 	}
 	
 	
