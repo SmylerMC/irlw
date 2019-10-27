@@ -20,6 +20,9 @@ public class IRLWGenerationSettings extends GenerationSettings{
 	private static final String SPAWN_LONG_KEY = "spawn_long";
 	protected double spawnLong = 0.0D;
 	
+	private static final String INFINIT_SEA_KEY = "infinit_sea";
+	protected boolean infinitSea = false;
+	
 	public IRLWGenerationSettings() {	
 	}
 	
@@ -27,27 +30,38 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		this.setZoomLevel(nbt.getInt(ZOOM_LEVEL_KEY));
 		this.setSpawnLat(nbt.getDouble(SPAWN_LAT_KEY));
 		this.setSpawnLong(nbt.getDouble(SPAWN_LONG_KEY));
+		this.setInfinitSea(nbt.getBoolean(INFINIT_SEA_KEY));
 	}
 	
 	public IRLWGenerationSettings(String json) throws InvalidSettingsException {
 		JsonParser parser = new JsonParser();
     	JsonObject jsonObject = parser.parse(json).getAsJsonObject();
-    	this.setZoomLevel(jsonObject.get("zoomlevel").getAsInt());
-    	this.setSpawnLong(jsonObject.get("spawn_long").getAsDouble());
-    	this.setSpawnLat(jsonObject.get("spawn_lat").getAsDouble());
+    	this.setZoomLevel(jsonObject.get(ZOOM_LEVEL_KEY).getAsInt());
+    	this.setSpawnLong(jsonObject.get(SPAWN_LONG_KEY).getAsDouble());
+    	this.setSpawnLat(jsonObject.get(SPAWN_LAT_KEY).getAsDouble());
+    	this.setInfinitSea(jsonObject.get(INFINIT_SEA_KEY).getAsBoolean());
 	}
 	
 	public CompoundNBT toNBT() {
 		CompoundNBT nbt = new CompoundNBT();
-		nbt.putInt(ZOOM_LEVEL_KEY, this.zoomLevel);
-		nbt.putDouble(SPAWN_LAT_KEY, this.spawnLat);
-		nbt.putDouble(SPAWN_LONG_KEY, spawnLong);
+		nbt.putInt(ZOOM_LEVEL_KEY, this.getZoomLevel());
+		nbt.putDouble(SPAWN_LAT_KEY, this.getSpawnLat());
+		nbt.putDouble(SPAWN_LONG_KEY, this.getSpawnLong());
+		nbt.putBoolean(INFINIT_SEA_KEY, this.getInfinitSea());
 		return nbt;
 	}
 	
 	public String toJson() {
 		//TODO Do not hard-code JSON generation
-		return "{\"zoomlevel\": " + this.zoomLevel + ", \"spawn_long\": " + this.spawnLong + ", \"spawn_lat\": " + this.spawnLat + "}";
+		return "{\"" + ZOOM_LEVEL_KEY + "\": " + 
+					this.zoomLevel + 
+				", \"" + SPAWN_LONG_KEY + "\": " +
+					this.spawnLong + 
+				", \"" + SPAWN_LAT_KEY + "\": " + 
+					this.spawnLat + 
+				", \"" + INFINIT_SEA_KEY + "\":" +
+					this.infinitSea +
+				"}";
 	}
 
 	public int getZoomLevel() {
@@ -76,7 +90,15 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		if(Math.abs(spawnLong) > 180D) throw new InvalidSettingsException();
 		this.spawnLong = spawnLong;
 	}
-
+	
+	public boolean getInfinitSea() {
+		return this.infinitSea;
+	}
+	
+	public void setInfinitSea(boolean infinitSea) {
+		this.infinitSea = infinitSea;
+	}
+	
 	public class InvalidSettingsException extends Exception {
 
 		private static final long serialVersionUID = -6903460846705201168L;

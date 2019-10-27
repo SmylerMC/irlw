@@ -32,9 +32,6 @@ import org.framagit.smylermc.irlw.maps.utils.MapboxUtils;
 import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
 import org.framagit.smylermc.irlw.world.WorldConstants;
 
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.SharedSeedRandom;
@@ -48,13 +45,6 @@ import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.Heightmap.Type;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.jigsaw.JigsawJunction;
-import net.minecraft.world.gen.feature.jigsaw.JigsawPattern;
-import net.minecraft.world.gen.feature.structure.AbstractVillagePiece;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.gen.feature.structure.StructurePiece;
-import net.minecraft.world.gen.feature.structure.StructureStart;
 
 /**
  * @author SmylerMC
@@ -260,17 +250,23 @@ public class IRLWChunkGenerator extends ChunkGenerator<IRLWGenerationSettings> {
 		ChunkPrimer primer = (ChunkPrimer)chunkIn;
 		for(int cx = 0; cx<16; cx++) {
 			for(int cz = 0; cz<16; cz++) {
+				
+				long mercatorX = (long)x*16+cx + this.xDelta;
+				long mercatorZ = (long)z*16+cz + this.zDelta;
+				
+				if(!WebMercatorUtils.isInWorld(mercatorX, mercatorZ, this.zoomLevel) && !this.genSettings.getInfinitSea()) continue;
+				
 				int height = 0;
 				int heightUp = 0;
 				int heightDown = 0;
 				int heightLeft = 0;
 				int heightRight = 0;
 				try {
-					height = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+ this.zDelta))/(WorldConstants.EVREST_ALTITUDE/192));
-					heightUp = (int) (Math.round(getHeightFromData((long)x*16+cx+1+ this.xDelta, (long)z*16+cz+ this.zDelta))/(WorldConstants.EVREST_ALTITUDE/192));
-					heightDown = (int) (Math.round(getHeightFromData((long)x*16+cx-1 + this.xDelta, (long)z*16+cz + this.zDelta))/(WorldConstants.EVREST_ALTITUDE/192));
-					heightLeft = (int) (Math.round(getHeightFromData((long)x*16+cx + this.xDelta, (long)z*16+cz+1+ this.zDelta))/(WorldConstants.EVREST_ALTITUDE/192));
-					heightRight = (int) (Math.round(getHeightFromData((long)x*16+cx+ this.xDelta, (long)z*16+cz-1+ this.zDelta))/(WorldConstants.EVREST_ALTITUDE/192));
+					height = (int) (Math.round(getHeightFromData(mercatorX, mercatorZ))/(WorldConstants.EVREST_ALTITUDE/192));
+					heightUp = (int) (Math.round(getHeightFromData(mercatorX + 1, mercatorZ))/(WorldConstants.EVREST_ALTITUDE/192));
+					heightDown = (int) (Math.round(getHeightFromData(mercatorX - 1, mercatorZ))/(WorldConstants.EVREST_ALTITUDE/192));
+					heightLeft = (int) (Math.round(getHeightFromData(mercatorX, mercatorZ + 1))/(WorldConstants.EVREST_ALTITUDE/192));
+					heightRight = (int) (Math.round(getHeightFromData(mercatorX, mercatorZ - 1))/(WorldConstants.EVREST_ALTITUDE/192));
 				} catch (IOException | InvalidMapboxSessionException | InvalidTileCoordinatesException e) {
 					// TODO Auto-generated catch block
 					//								e.printStackTrace();
