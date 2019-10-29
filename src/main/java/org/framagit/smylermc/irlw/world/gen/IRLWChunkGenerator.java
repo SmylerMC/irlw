@@ -247,7 +247,7 @@ public class IRLWChunkGenerator extends ChunkGenerator<IRLWGenerationSettings> {
 				long mercatorX = (long)x*16+cx + this.xDelta;
 				long mercatorZ = (long)z*16+cz + this.zDelta;
 				
-				if(!WebMercatorUtils.isInWorld(mercatorX, mercatorZ, this.zoomLevel) && !this.genSettings.getInfinitOcean()) continue;
+				if(!WebMercatorUtils.isInWorld(mercatorX, mercatorZ, this.zoomLevel) && !this.genSettings.getInfiniteOcean()) continue;
 				
 				int height = 0;
 				int heightUp = 0;

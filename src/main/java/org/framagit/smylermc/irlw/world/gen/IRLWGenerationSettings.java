@@ -20,7 +20,7 @@ public class IRLWGenerationSettings extends GenerationSettings{
 	private static final String SPAWN_LONG_KEY = "spawn_long";
 	protected double spawnLong = 0.0D;
 	
-	private static final String INFINIT_OCEAN_KEY = "infinit_ocean";
+	private static final String INFINITE_OCEAN_KEY = "infinite_ocean";
 	protected boolean infinitOcean = false;
 	
 	private static final String MAKE_BEDROCK_KEY = "make_bedrock";
@@ -33,7 +33,7 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		if(nbt.contains(ZOOM_LEVEL_KEY)) this.setZoomLevel(nbt.getInt(ZOOM_LEVEL_KEY));
 		if(nbt.contains(SPAWN_LAT_KEY)) this.setSpawnLat(nbt.getDouble(SPAWN_LAT_KEY));
 		if(nbt.contains(SPAWN_LONG_KEY)) this.setSpawnLong(nbt.getDouble(SPAWN_LONG_KEY));
-		if(nbt.contains(INFINIT_OCEAN_KEY)) this.setInfinitOcean(nbt.getBoolean(INFINIT_OCEAN_KEY));
+		if(nbt.contains(INFINITE_OCEAN_KEY)) this.setInfiniteOcean(nbt.getBoolean(INFINITE_OCEAN_KEY));
 		if(nbt.contains(MAKE_BEDROCK_KEY)) this.setMakeBedrock(nbt.getBoolean(MAKE_BEDROCK_KEY));
 	}
 	
@@ -43,7 +43,7 @@ public class IRLWGenerationSettings extends GenerationSettings{
     	if(jsonObject.has(ZOOM_LEVEL_KEY)) this.setZoomLevel(jsonObject.get(ZOOM_LEVEL_KEY).getAsInt());
     	if(jsonObject.has(SPAWN_LONG_KEY)) this.setSpawnLong(jsonObject.get(SPAWN_LONG_KEY).getAsDouble());
     	if(jsonObject.has(SPAWN_LAT_KEY)) this.setSpawnLat(jsonObject.get(SPAWN_LAT_KEY).getAsDouble());
-    	if(jsonObject.has(INFINIT_OCEAN_KEY)) this.setInfinitOcean(jsonObject.get(INFINIT_OCEAN_KEY).getAsBoolean());
+    	if(jsonObject.has(INFINITE_OCEAN_KEY)) this.setInfiniteOcean(jsonObject.get(INFINITE_OCEAN_KEY).getAsBoolean());
     	if(jsonObject.has(MAKE_BEDROCK_KEY)) this.setMakeBedrock(jsonObject.get(MAKE_BEDROCK_KEY).getAsBoolean());
 	}
 	
@@ -52,7 +52,7 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		nbt.putInt(ZOOM_LEVEL_KEY, this.getZoomLevel());
 		nbt.putDouble(SPAWN_LAT_KEY, this.getSpawnLat());
 		nbt.putDouble(SPAWN_LONG_KEY, this.getSpawnLong());
-		nbt.putBoolean(INFINIT_OCEAN_KEY, this.getInfinitOcean());
+		nbt.putBoolean(INFINITE_OCEAN_KEY, this.getInfiniteOcean());
 		nbt.putBoolean(MAKE_BEDROCK_KEY, this.getMakeBedrock());
 		return nbt;
 	}
@@ -65,8 +65,8 @@ public class IRLWGenerationSettings extends GenerationSettings{
 					this.getSpawnLong() + 
 				", \"" + SPAWN_LAT_KEY + "\": " + 
 					this.getSpawnLat() + 
-				", \"" + INFINIT_OCEAN_KEY + "\": " +
-					this.getInfinitOcean() +
+				", \"" + INFINITE_OCEAN_KEY + "\": " +
+					this.getInfiniteOcean() +
 				", \"" + MAKE_BEDROCK_KEY + "\": " +
 					this.getMakeBedrock() +
 				"}";
@@ -99,11 +99,11 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		this.spawnLong = spawnLong;
 	}
 	
-	public boolean getInfinitOcean() {
+	public boolean getInfiniteOcean() {
 		return this.infinitOcean;
 	}
 	
-	public void setInfinitOcean(boolean infinitSea) {
+	public void setInfiniteOcean(boolean infinitSea) {
 		this.infinitOcean = infinitSea;
 	}
 	
