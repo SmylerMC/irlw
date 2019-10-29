@@ -14,7 +14,7 @@ displayName="IRLW"
 displayURL="https://framagit.org/SmylerMC/irlw"
 #logoFile="assets/irlw/textures/logo.png"
 # A text field displayed in the mod UI
-credits="In no particular order, data used by the mod may be originally published by: OpenStreetMap Contributors, the U.S. Department of Agriculture, Mapbox" #optional
+credits="In no particular order, data used by the mod may be originally published by: OpenStreetMap Contributors, the U.S. Department of Agriculture, Mapbox, the ESA, and the Université Catholique de Louvain"
 authors="Smyler"
 description='''The real world in Minecraft??'''
 
