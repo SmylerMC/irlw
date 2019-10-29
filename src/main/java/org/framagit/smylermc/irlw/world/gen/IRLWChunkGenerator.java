@@ -185,54 +185,47 @@ public class IRLWChunkGenerator extends ChunkGenerator<IRLWGenerationSettings> {
 
 	public void generateSurface(IChunk chunkIn) {
 		ChunkPos chunkpos = chunkIn.getPos();
-		int i = chunkpos.x;
-		int j = chunkpos.z;
+		int chunkX = chunkpos.x;
+		int chunkZ = chunkpos.z;
 		SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-		sharedseedrandom.setBaseChunkSeed(i, j);
+		sharedseedrandom.setBaseChunkSeed(chunkX, chunkZ);
 		ChunkPos chunkpos1 = chunkIn.getPos();
-		int k = chunkpos1.getXStart();
-		int l = chunkpos1.getZStart();
+		int startX = chunkpos1.getXStart();
+		int startZ = chunkpos1.getZStart();
 		double d0 = 0.0625D;
-		Biome[] abiome = chunkIn.getBiomes();
+		Biome[] biomes = chunkIn.getBiomes();
 
-		for(int i1 = 0; i1 < 16; ++i1) {
-			for(int j1 = 0; j1 < 16; ++j1) {
-				int k1 = k + i1;
-				int l1 = l + j1;
-				int i2 = chunkIn.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, i1, j1) + 1;
+		for(int cx = 0; cx < 16; ++cx) {
+			for(int cz = 0; cz < 16; ++cz) {
+				int x = startX + cx;
+				int z = startZ + cz;
+				int i2 = chunkIn.getTopBlockY(Heightmap.Type.WORLD_SURFACE_WG, cx, cz) + 1;
 				double d1 = 64;
-				abiome[j1 * 16 + i1].buildSurface(sharedseedrandom, chunkIn, k1, l1, i2, d1, this.getSettings().getDefaultBlock(), this.getSettings().getDefaultFluid(), this.getSeaLevel(), this.world.getSeed());
+				biomes[cz * 16 + cx].buildSurface(sharedseedrandom, chunkIn, x, z, i2, d1, this.getSettings().getDefaultBlock(), this.getSettings().getDefaultFluid(), this.getSeaLevel(), this.world.getSeed());
 			}
 		}
 
-		this.makeBedrock(chunkIn, sharedseedrandom);
+		if (genSettings.getMakeBedrock()) {
+			this.makeBedrock(chunkIn, sharedseedrandom);
+		}
 	}
 
 	protected void makeBedrock(IChunk chunkIn, Random rand) {
-		BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
-		int i = chunkIn.getPos().getXStart();
-		int j = chunkIn.getPos().getZStart();
-		IRLWGenerationSettings t = this.getSettings();
-		int k = t.getBedrockFloorHeight();
-		int l = t.getBedrockRoofHeight();
+		
+		BlockPos.MutableBlockPos mutBlockPos = new BlockPos.MutableBlockPos();
+		int startX = chunkIn.getPos().getXStart();
+		int startZ = chunkIn.getPos().getZStart();
+		IRLWGenerationSettings genSettings = this.getSettings();
+		int floorHeight = genSettings.getBedrockFloorHeight();
 
-		for(BlockPos blockpos : BlockPos.getAllInBoxMutable(i, 0, j, i + 15, 0, j + 15)) {
-			if (l > 0) {
-				for(int i1 = l; i1 >= l - 4; --i1) {
-					if (i1 >= l - rand.nextInt(5)) {
-						chunkIn.setBlockState(blockpos$mutableblockpos.setPos(blockpos.getX(), i1, blockpos.getZ()), Blocks.BEDROCK.getDefaultState(), false);
-					}
-				}
-			}
-
-			if (k < 256) {
-				for(int j1 = k + 4; j1 >= k; --j1) {
-					if (j1 <= k + rand.nextInt(5)) {
-						chunkIn.setBlockState(blockpos$mutableblockpos.setPos(blockpos.getX(), j1, blockpos.getZ()), Blocks.BEDROCK.getDefaultState(), false);
-					}
-				}
+		for(BlockPos blockpos : BlockPos.getAllInBoxMutable(startX, 0, startZ, startX + 15, 0, startZ + 15)) {
+			if(!WebMercatorUtils.isInWorld(blockpos.getX() + this.xDelta, blockpos.getZ() + this.zDelta, this.zoomLevel)) continue;
+			for(int y = floorHeight + 4; y >= floorHeight; --y) {
+				if (y <= floorHeight + rand.nextInt(5))
+					chunkIn.setBlockState(mutBlockPos.setPos(blockpos.getX(), y, blockpos.getZ()), Blocks.BEDROCK.getDefaultState(), false);
 			}
 		}
+		
 
 	}
 
@@ -262,11 +255,11 @@ public class IRLWChunkGenerator extends ChunkGenerator<IRLWGenerationSettings> {
 				int heightLeft = 0;
 				int heightRight = 0;
 				try {
-					height = (int) (Math.round(getHeightFromData(mercatorX, mercatorZ))/(WorldConstants.EVREST_ALTITUDE/192));
-					heightUp = (int) (Math.round(getHeightFromData(mercatorX + 1, mercatorZ))/(WorldConstants.EVREST_ALTITUDE/192));
-					heightDown = (int) (Math.round(getHeightFromData(mercatorX - 1, mercatorZ))/(WorldConstants.EVREST_ALTITUDE/192));
-					heightLeft = (int) (Math.round(getHeightFromData(mercatorX, mercatorZ + 1))/(WorldConstants.EVREST_ALTITUDE/192));
-					heightRight = (int) (Math.round(getHeightFromData(mercatorX, mercatorZ - 1))/(WorldConstants.EVREST_ALTITUDE/192));
+					height = (int) (Math.round(Math.max(getHeightFromData(mercatorX, mercatorZ), 0))/(WorldConstants.EVREST_ALTITUDE/192));
+					heightUp = (int) (Math.round(Math.max(getHeightFromData(mercatorX + 1, mercatorZ), 0))/(WorldConstants.EVREST_ALTITUDE/192));
+					heightDown = (int) (Math.round(Math.max(getHeightFromData(mercatorX - 1, mercatorZ), 0))/(WorldConstants.EVREST_ALTITUDE/192));
+					heightLeft = (int) (Math.round(Math.max(getHeightFromData(mercatorX, mercatorZ + 1), 0))/(WorldConstants.EVREST_ALTITUDE/192));
+					heightRight = (int) (Math.round(Math.max(getHeightFromData(mercatorX, mercatorZ - 1), 0))/(WorldConstants.EVREST_ALTITUDE/192));
 				} catch (IOException | InvalidMapboxSessionException | InvalidTileCoordinatesException e) {
 					// TODO Auto-generated catch block
 					//								e.printStackTrace();

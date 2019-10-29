@@ -23,23 +23,28 @@ public class IRLWGenerationSettings extends GenerationSettings{
 	private static final String INFINIT_OCEAN_KEY = "infinit_ocean";
 	protected boolean infinitOcean = false;
 	
+	private static final String MAKE_BEDROCK_KEY = "make_bedrock";
+	protected boolean makeBedrock = true;
+	
 	public IRLWGenerationSettings() {	
 	}
 	
 	public IRLWGenerationSettings(CompoundNBT nbt) throws InvalidSettingsException {
-		this.setZoomLevel(nbt.getInt(ZOOM_LEVEL_KEY));
-		this.setSpawnLat(nbt.getDouble(SPAWN_LAT_KEY));
-		this.setSpawnLong(nbt.getDouble(SPAWN_LONG_KEY));
-		this.setInfinitOcean(nbt.getBoolean(INFINIT_OCEAN_KEY));
+		if(nbt.contains(ZOOM_LEVEL_KEY)) this.setZoomLevel(nbt.getInt(ZOOM_LEVEL_KEY));
+		if(nbt.contains(SPAWN_LAT_KEY)) this.setSpawnLat(nbt.getDouble(SPAWN_LAT_KEY));
+		if(nbt.contains(SPAWN_LONG_KEY)) this.setSpawnLong(nbt.getDouble(SPAWN_LONG_KEY));
+		if(nbt.contains(INFINIT_OCEAN_KEY)) this.setInfinitOcean(nbt.getBoolean(INFINIT_OCEAN_KEY));
+		if(nbt.contains(MAKE_BEDROCK_KEY)) this.setMakeBedrock(nbt.getBoolean(MAKE_BEDROCK_KEY));
 	}
 	
 	public IRLWGenerationSettings(String json) throws InvalidSettingsException {
 		JsonParser parser = new JsonParser();
     	JsonObject jsonObject = parser.parse(json).getAsJsonObject();
-    	this.setZoomLevel(jsonObject.get(ZOOM_LEVEL_KEY).getAsInt());
-    	this.setSpawnLong(jsonObject.get(SPAWN_LONG_KEY).getAsDouble());
-    	this.setSpawnLat(jsonObject.get(SPAWN_LAT_KEY).getAsDouble());
-    	this.setInfinitOcean(jsonObject.get(INFINIT_OCEAN_KEY).getAsBoolean());
+    	if(jsonObject.has(ZOOM_LEVEL_KEY)) this.setZoomLevel(jsonObject.get(ZOOM_LEVEL_KEY).getAsInt());
+    	if(jsonObject.has(SPAWN_LONG_KEY)) this.setSpawnLong(jsonObject.get(SPAWN_LONG_KEY).getAsDouble());
+    	if(jsonObject.has(SPAWN_LAT_KEY)) this.setSpawnLat(jsonObject.get(SPAWN_LAT_KEY).getAsDouble());
+    	if(jsonObject.has(INFINIT_OCEAN_KEY)) this.setInfinitOcean(jsonObject.get(INFINIT_OCEAN_KEY).getAsBoolean());
+    	if(jsonObject.has(MAKE_BEDROCK_KEY)) this.setMakeBedrock(jsonObject.get(MAKE_BEDROCK_KEY).getAsBoolean());
 	}
 	
 	public CompoundNBT toNBT() {
@@ -48,19 +53,22 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		nbt.putDouble(SPAWN_LAT_KEY, this.getSpawnLat());
 		nbt.putDouble(SPAWN_LONG_KEY, this.getSpawnLong());
 		nbt.putBoolean(INFINIT_OCEAN_KEY, this.getInfinitOcean());
+		nbt.putBoolean(MAKE_BEDROCK_KEY, this.getMakeBedrock());
 		return nbt;
 	}
 	
 	public String toJson() {
 		//TODO Do not hard-code JSON generation
 		return "{\"" + ZOOM_LEVEL_KEY + "\": " + 
-					this.zoomLevel + 
+					this.getZoomLevel() + 
 				", \"" + SPAWN_LONG_KEY + "\": " +
-					this.spawnLong + 
+					this.getSpawnLong() + 
 				", \"" + SPAWN_LAT_KEY + "\": " + 
-					this.spawnLat + 
-				", \"" + INFINIT_OCEAN_KEY + "\":" +
-					this.infinitOcean +
+					this.getSpawnLat() + 
+				", \"" + INFINIT_OCEAN_KEY + "\": " +
+					this.getInfinitOcean() +
+				", \"" + MAKE_BEDROCK_KEY + "\": " +
+					this.getMakeBedrock() +
 				"}";
 	}
 
@@ -99,6 +107,19 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		this.infinitOcean = infinitSea;
 	}
 	
+	public boolean getMakeBedrock() {
+		return makeBedrock;
+	}
+
+	public void setMakeBedrock(boolean makeBedrock) {
+		this.makeBedrock = makeBedrock;
+	}
+
+    @Override
+    public int getBedrockFloorHeight() {
+            return this.getMakeBedrock()?0:256;
+    }
+
 	public class InvalidSettingsException extends Exception {
 
 		private static final long serialVersionUID = -6903460846705201168L;
