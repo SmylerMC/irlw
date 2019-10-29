@@ -20,8 +20,8 @@ public class IRLWGenerationSettings extends GenerationSettings{
 	private static final String SPAWN_LONG_KEY = "spawn_long";
 	protected double spawnLong = 0.0D;
 	
-	private static final String INFINIT_SEA_KEY = "infinit_sea";
-	protected boolean infinitSea = false;
+	private static final String INFINIT_OCEAN_KEY = "infinit_ocean";
+	protected boolean infinitOcean = false;
 	
 	public IRLWGenerationSettings() {	
 	}
@@ -30,7 +30,7 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		this.setZoomLevel(nbt.getInt(ZOOM_LEVEL_KEY));
 		this.setSpawnLat(nbt.getDouble(SPAWN_LAT_KEY));
 		this.setSpawnLong(nbt.getDouble(SPAWN_LONG_KEY));
-		this.setInfinitSea(nbt.getBoolean(INFINIT_SEA_KEY));
+		this.setInfinitOcean(nbt.getBoolean(INFINIT_OCEAN_KEY));
 	}
 	
 	public IRLWGenerationSettings(String json) throws InvalidSettingsException {
@@ -39,7 +39,7 @@ public class IRLWGenerationSettings extends GenerationSettings{
     	this.setZoomLevel(jsonObject.get(ZOOM_LEVEL_KEY).getAsInt());
     	this.setSpawnLong(jsonObject.get(SPAWN_LONG_KEY).getAsDouble());
     	this.setSpawnLat(jsonObject.get(SPAWN_LAT_KEY).getAsDouble());
-    	this.setInfinitSea(jsonObject.get(INFINIT_SEA_KEY).getAsBoolean());
+    	this.setInfinitOcean(jsonObject.get(INFINIT_OCEAN_KEY).getAsBoolean());
 	}
 	
 	public CompoundNBT toNBT() {
@@ -47,7 +47,7 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		nbt.putInt(ZOOM_LEVEL_KEY, this.getZoomLevel());
 		nbt.putDouble(SPAWN_LAT_KEY, this.getSpawnLat());
 		nbt.putDouble(SPAWN_LONG_KEY, this.getSpawnLong());
-		nbt.putBoolean(INFINIT_SEA_KEY, this.getInfinitSea());
+		nbt.putBoolean(INFINIT_OCEAN_KEY, this.getInfinitOcean());
 		return nbt;
 	}
 	
@@ -59,8 +59,8 @@ public class IRLWGenerationSettings extends GenerationSettings{
 					this.spawnLong + 
 				", \"" + SPAWN_LAT_KEY + "\": " + 
 					this.spawnLat + 
-				", \"" + INFINIT_SEA_KEY + "\":" +
-					this.infinitSea +
+				", \"" + INFINIT_OCEAN_KEY + "\":" +
+					this.infinitOcean +
 				"}";
 	}
 
@@ -91,12 +91,12 @@ public class IRLWGenerationSettings extends GenerationSettings{
 		this.spawnLong = spawnLong;
 	}
 	
-	public boolean getInfinitSea() {
-		return this.infinitSea;
+	public boolean getInfinitOcean() {
+		return this.infinitOcean;
 	}
 	
-	public void setInfinitSea(boolean infinitSea) {
-		this.infinitSea = infinitSea;
+	public void setInfinitOcean(boolean infinitSea) {
+		this.infinitOcean = infinitSea;
 	}
 	
 	public class InvalidSettingsException extends Exception {
