@@ -1,3 +1,7 @@
+# 1.14.4-0.0.7.0-alpha
+Added bedrock generation
+No longer generate an infinite ocean by default
+
 # 1.14.4-0.0.6.1-alpha
 Fixed a bug in color decoding causing all terrain height to be wrong
 
