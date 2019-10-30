@@ -49,12 +49,31 @@ public final class IRLWServerEventHandler {
 	 * @param event
 	 */
 	@SubscribeEvent
-	public static void onPlayerJoinServer(PlayerLoggedInEvent event){
-		
+	public static void onPlayerJoinServer(PlayerLoggedInEvent event) {
 		//TODO Resync when gamerule reducedDebugInfo changes
-		
-		//Send debug info to the client
 		ServerPlayerEntity player = (ServerPlayerEntity)event.getPlayer();
+		syncDebugInfoIfNeeded(player);
+	}
+	
+//	@SubscribeEvent
+//	public static void onCommand(CommandEvent event) {
+//		@SuppressWarnings("rawtypes")
+//		CommandContextBuilder context = event.getParseResults().getContext();
+//		if(context.getCommand().toString().startsWith("net.minecraft.command.impl.GameRuleCommand")) {
+//			IRLW.logger.info(context.getSource());
+//			if(context.getSource() instanceof CommandSource) {
+//				CommandSource src = (CommandSource)context.getSource();
+//				try {
+//					ServerPlayerEntity player = src.asPlayer();
+//					syncDebugInfoIfNeeded(player); //FIXME This is done to soon: the gamerule hasn't changed yet at this point
+//				} catch (CommandSyntaxException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//	}
+	
+	public static void syncDebugInfoIfNeeded(ServerPlayerEntity player) {
 		World world = player.getEntityWorld();
 		
 		if(world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)){
