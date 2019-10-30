@@ -43,7 +43,7 @@ public final class IRLWPacketHandler {
 
 	//Protocol version information
 	private static final String PROTOCOL_VERSION_MAJOR = "0"; // Needs to match
-	private static final String PROTOCOL_VERSION_MINOR = "1";
+	private static final String PROTOCOL_VERSION_MINOR = "2";
 	private static final String PROTOCOL_VERSION_EXTRA = "dev";
 	public static final String PROTOCOL_VERSION = 
 			IRLWPacketHandler.PROTOCOL_VERSION_MAJOR + "." +
