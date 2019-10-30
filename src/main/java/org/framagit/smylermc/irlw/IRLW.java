@@ -56,7 +56,7 @@ public class IRLW {
 	/* Static fields describing the mod */
 	public static final String MOD_ID = "irlw";
 	public static final String MOD_NAME = "In Real Life World";
-	public static final String MOD_VERSION = "0.0.7.0-alpha";
+	public static final String MOD_VERSION = "0.0.8.0-alpha";
 	public static final String PROTOCOL_VERSION = IRLWPacketHandler.PROTOCOL_VERSION;
 	public static final String MC_VERSIONS = "1.14.4";
 	public static final String AUTHOR_EMAIL = "smyler@mail.com";

@@ -117,7 +117,7 @@ jar {
         attributes([
             "Specification-Title": "irlw",
             "Specification-Vendor": "smyler",
-            "Specification-Version": "1.14.4-0.0.4.0-alpha", // We are version 1 of ourselves
+            "Specification-Version": "1.14.4-0.0.8.0-alpha", // We are version 1 of ourselves
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
             "Implementation-Vendor" :"smyler",
