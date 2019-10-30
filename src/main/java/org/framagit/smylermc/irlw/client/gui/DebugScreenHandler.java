@@ -23,8 +23,14 @@ package org.framagit.smylermc.irlw.client.gui;
 import java.util.ArrayList;
 
 import org.framagit.smylermc.irlw.IRLW;
+import org.framagit.smylermc.irlw.maps.utils.WebMercatorUtils;
+import org.framagit.smylermc.irlw.world.gen.IRLWGenerationSettings;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
 
 
 /**
@@ -63,37 +69,36 @@ public final class DebugScreenHandler {
 	public ArrayList<String> getLeft(){
 		ArrayList<String> list = new ArrayList<String>();
 		try{
-			//TODO
-//			World world = Minecraft.getInstance().world;
-//			if((!world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)) || world.getGameRules().getBoolean(GameRules.REDUCED_DEBUG_INFO)) //TODO The gamerules doesn't seem to be sync :(
-//				return list;
-//			list.add("");
-//			ClientPlayerEntity player = Minecraft.getInstance().player;
-//			IRLWWorldData data = (IRLWWorldData)world.func_217406_a(IRLWWorldData.IRLW_DATA); // func_217406_a is getMapData
-//			int zoom = data.getZoomLevel();
-//			long deltaX = data.getDeltaX();
-//			long deltaZ = data.getDeltaZ();
-//			long playerMapX = player.getPosition().getX() + deltaX;
-//			long playerMapZ = player.getPosition().getZ() + deltaZ;
-//			if(WebMercatorUtils.isInWorld(playerMapX, playerMapZ, zoom)){
-//				long tileX = WebMercatorUtils.getTileXAt((long) playerMapX );
-//				long tileZ = WebMercatorUtils.getTileXAt((long) playerMapZ);
-//				double longitude = WebMercatorUtils.getLongitudeFromX(playerMapX, zoom);
-//				double latitude = WebMercatorUtils.getLatitudeFromY(playerMapZ, zoom);
-//				double factor = WebMercatorUtils.getSizeFactorFromLatitude(latitude, zoom);
-//				list.add(PREFIX + "Mercator zoom: " + zoom + "; Tile: x=" + tileX + "; y=" + tileZ);
-//				list.add(PREFIX + 
-//						"Latitude: " + String.format("%f", latitude) + "°, " + 
-//						"Longitude: " + String.format("%f", longitude) + "°");
-//				list.add(PREFIX + "Size Factor: " + String.format("%f", factor));
-//			}else{
-//				list.add(PREFIX + "Mercator zoom: " + zoom + ";" + TextFormatting.YELLOW + " You are outside the world." + TextFormatting.RESET);
-//			}
+			World world = Minecraft.getInstance().world;
+			if((!world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)) || world.getGameRules().getBoolean(GameRules.REDUCED_DEBUG_INFO)) //TODO The gamerules doesn't seem to be sync :(
+				return list;
+			IRLWGenerationSettings genSettings = new IRLWGenerationSettings(Minecraft.getInstance().world.getWorldInfo().getGeneratorOptions());
+			list.add("");
+			ClientPlayerEntity player = Minecraft.getInstance().player;
+			int zoom = genSettings.getZoomLevel();
+			long deltaX = (long) WebMercatorUtils.getXFromLongitude(genSettings.getSpawnLong(), zoom)/16;
+			long deltaZ = (long) WebMercatorUtils.getYFromLatitude(genSettings.getSpawnLat(), zoom)/16;
+			deltaX *= 16;	//We are just rounding up to match chunks
+			deltaZ *= 16;
+			long playerMapX = player.getPosition().getX() + deltaX;
+			long playerMapZ = player.getPosition().getZ() + deltaZ;
+			if(WebMercatorUtils.isInWorld(playerMapX, playerMapZ, zoom)){
+				long tileX = WebMercatorUtils.getTileXAt((long) playerMapX );
+				long tileZ = WebMercatorUtils.getTileXAt((long) playerMapZ);
+				double longitude = WebMercatorUtils.getLongitudeFromX(playerMapX, zoom);
+				double latitude = WebMercatorUtils.getLatitudeFromY(playerMapZ, zoom);
+				double factor = WebMercatorUtils.getSizeFactorFromLatitude(latitude, zoom);
+				list.add(PREFIX + "Mercator zoom: " + zoom + "; Tile: x=" + tileX + "; y=" + tileZ);
+				list.add(PREFIX + 
+						"Latitude: " + String.format("%f", latitude) + "°, " + 
+						"Longitude: " + String.format("%f", longitude) + "°");
+				list.add(PREFIX + "Size Factor: " + String.format("%f", factor));
+			}else{
+				list.add(PREFIX + "Mercator zoom: " + zoom + ";" + TextFormatting.YELLOW + " You are outside the world." + TextFormatting.RESET);
+			}
 			if(Minecraft.getInstance().isIntegratedServerRunning())
 				list.add(PREFIX + "Cacher queue size: " + IRLW.cacheManager.getQueueSize());
 			
-			//FIXME F3 debug screen
-			list.add(PREFIX + "IRLW is still in progess for 1.14, debug information has not been ported yet");
 		}catch(Exception e){
 			list.add(PREFIX + TextFormatting.RED + "IRLW can't display its debug information because of an internal error." + TextFormatting.RESET);
 			list.add(PREFIX + TextFormatting.RED + "Please tell the modder at " + IRLW.AUTHOR_EMAIL + TextFormatting.RESET);

@@ -23,9 +23,11 @@ package org.framagit.smylermc.irlw.server.events;
 import org.framagit.smylermc.irlw.IRLW;
 import org.framagit.smylermc.irlw.network.IRLWPacketHandler;
 import org.framagit.smylermc.irlw.network.PacketWorldData;
-import org.framagit.smylermc.irlw.world.IRLWWorldData;
+import org.framagit.smylermc.irlw.world.gen.IRLWGenerationSettings;
+import org.framagit.smylermc.irlw.world.gen.IRLWGenerationSettings.InvalidSettingsException;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -49,23 +51,29 @@ public final class IRLWServerEventHandler {
 	@SubscribeEvent
 	public static void onPlayerJoinServer(PlayerLoggedInEvent event){
 		
-		//FIXME 1.14.4 - IRLW World data sync with client in player log in
-		//Send world data to the client
+		//TODO Resync when gamerule reducedDebugInfo changes
+		
+		//Send debug info to the client
 		ServerPlayerEntity player = (ServerPlayerEntity)event.getPlayer();
-
 		World world = player.getEntityWorld();
+		
 		if(world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)){
-//			IMessage data = (IMessage) world.loadData(IRLWWorldData.class, IRLWWorldData.IRLW_DATA);
-//			if(data == null) {
-//				IRLWWorldData.setForWorld(world);
-//			}
-//			data = (IMessage) world.loadData(IRLWWorldData.class, IRLWWorldData.IRLW_DATA);
-//			if(data == null) {
-//				IRLW.logger.fatal("Failed to load some data we just set before sending it, we are going to crash!!");
-//			}
-			IRLW.logger.debug("Sending world data to client " + player.getName().getString());
-			PacketWorldData packet = new PacketWorldData(new IRLWWorldData(0, 0, 0, 0, 0));
-			IRLWPacketHandler.INSTANCE.sendTo(packet, player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+			IRLW.logger.debug("Sending debug data to client " + player.getName().getString());
+			boolean reducedDebugInfo = world.getGameRules().getBoolean(GameRules.REDUCED_DEBUG_INFO);
+			try {
+				IRLWGenerationSettings settings;
+				if(!reducedDebugInfo)
+					settings = new IRLWGenerationSettings(world.getWorldInfo().getGeneratorOptions());
+				else
+					settings = new IRLWGenerationSettings(); // Do not send settings if gamerule reduced_debug_info is false
+				PacketWorldData packet = new PacketWorldData(settings, reducedDebugInfo);
+				IRLWPacketHandler.INSTANCE.sendTo(packet, player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+			} catch (InvalidSettingsException e) {
+				IRLW.logger.error("The current world seems to have invalid generation settings");
+				IRLW.logger.catching(e);
+				IRLW.logger.error("World data were not sent to the client");
+			}
+			
 		}
 	}
 	
