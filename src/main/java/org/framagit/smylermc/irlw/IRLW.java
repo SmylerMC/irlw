@@ -78,7 +78,7 @@ public class IRLW {
     
     
     /* Config and logger */
-    public static final Logger logger = LogManager.getLogger();
+    public static final Logger logger = LogManager.getLogger("IRLW");
     public static CacheManager cacheManager;
     
     
@@ -132,6 +132,7 @@ public class IRLW {
 		
 		IRLW.cacheManager.cacheAsync(new MapboxElevationTile(0, 0, 0));
 		
+		IRLWPacketHandler.registerHandlers();
 		IRLW.logger.debug("IRLW setup is done");
     }
 

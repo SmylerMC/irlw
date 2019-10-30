@@ -20,9 +20,16 @@
 
 package org.framagit.smylermc.irlw.network;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import org.framagit.smylermc.irlw.IRLW;
+
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
@@ -45,7 +52,7 @@ public final class IRLWPacketHandler {
 	
 	
 	
-	//Packet discriminator counter, should be increased for each packet type.
+	//Packet discriminatory counter, should be increased for each packet type.
 	private static int discriminator = 0;
 	
 	
@@ -95,10 +102,12 @@ public final class IRLWPacketHandler {
 	 */
 	private static void registerClientHandlers(){
 		IRLW.logger.debug("Registering client network handlers");
-		
-		//FIXME 1.14.4 - IRLWWorldData packet handling
-		//INSTANCE.registerMessage(discriminator++, IRLWWorldData.class, IRLWWorldData::toBytes, IRLWWorldData::fromBytes, IRLWClientPacketHandler::handleIRLWWorldData);
+		registerMessage(PacketWorldData.class, PacketWorldData::encode, PacketWorldData::decode, PacketWorldData::handle);
 	}
+	
+	private static <MSG> void registerMessage(Class<MSG> type, BiConsumer<MSG, PacketBuffer> encoder, Function<PacketBuffer, MSG> decoder, BiConsumer<MSG, Supplier<Context>> consumer) {
+        INSTANCE.registerMessage(discriminator++, type, encoder, decoder, consumer);
+    }
 
 	
 }

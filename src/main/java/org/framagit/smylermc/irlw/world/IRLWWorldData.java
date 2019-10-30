@@ -31,7 +31,9 @@ import net.minecraft.world.storage.WorldSavedData;
 
 
 //FIXME 1.14.4 - IRLWWorldData network and saving
-public class IRLWWorldData extends WorldSavedData{
+//public class IRLWWorldData extends WorldSavedData{
+	public class IRLWWorldData {
+
 	
 	
 	//Because only one of this should be saved by world, this is the ID it has to use
@@ -56,8 +58,8 @@ public class IRLWWorldData extends WorldSavedData{
 	 * This is the constructor to use, it sets the good id
 	 */
 	public IRLWWorldData() {
-		super(IRLW_DATA);
-		this.markDirty();
+//		super(IRLW_DATA);
+//		this.markDirty();
 		
 	}
 	
@@ -67,9 +69,9 @@ public class IRLWWorldData extends WorldSavedData{
 	 * 
 	 * @param str This is required by forge, but will be ignored, as there is only one of these per world
 	 */
-	public IRLWWorldData(String str) {
-		this();  
-	}
+//	public IRLWWorldData(String str) {
+//		this();  
+//	}
 	
 	/**
 	 * 
@@ -81,26 +83,26 @@ public class IRLWWorldData extends WorldSavedData{
 	 * 
 	 */
 	public IRLWWorldData(int zoom, long deltaX, long deltaZ, double centerLat, double centerLong){
-		this();
+//		this();
 		this.zoomLevel = zoom;
 		this.xDelta = deltaX;
 		this.zDelta = deltaZ;
 		this.centerLat = centerLat;
 		this.centerLong = centerLong;
-		this.markDirty();
+//		this.markDirty();
 	}
 
 
-	@Override
-	public void read(CompoundNBT nbt) {
-		this.zoomLevel = nbt.getInt(this.KEY_ZOOM);
-		this.centerLat = nbt.getDouble(this.KEY_LATITUDE);
-		this.centerLong = nbt.getDouble(this.KEY_LONGITUDE);
-		this.xDelta = nbt.getLong(this.KEY_DELTAX);
-		this.zDelta = nbt.getLong(this.KEY_DELTAZ);
-//		this.isBorderSet = nbt.getBoolean("borderset");
-		this.markDirty();
-	}
+//	@Override
+//	public void read(CompoundNBT nbt) {
+//		this.zoomLevel = nbt.getInt(this.KEY_ZOOM);
+//		this.centerLat = nbt.getDouble(this.KEY_LATITUDE);
+//		this.centerLong = nbt.getDouble(this.KEY_LONGITUDE);
+//		this.xDelta = nbt.getLong(this.KEY_DELTAX);
+//		this.zDelta = nbt.getLong(this.KEY_DELTAZ);
+////		this.isBorderSet = nbt.getBoolean("borderset");
+//		this.markDirty();
+//	}
 
 	
 	/**
@@ -108,40 +110,19 @@ public class IRLWWorldData extends WorldSavedData{
 	 * 
 	 * @param nbt the nbt tag to write
 	 */
-	@Override
-	public CompoundNBT write(CompoundNBT nbt) {
-		nbt.putInt(this.KEY_ZOOM, this.zoomLevel);
-		nbt.putDouble(this.KEY_LATITUDE, this.centerLat);
-		nbt.putDouble(this.KEY_LONGITUDE, this.centerLong);
-		nbt.putLong(this.KEY_DELTAX, this.xDelta);
-		nbt.putLong(this.KEY_DELTAZ, this.zDelta);
-//		nbt.setBoolean("borderset", this.isBorderSet);
-		return nbt;
-	}
+//	@Override
+//	public CompoundNBT write(CompoundNBT nbt) {
+//		nbt.putInt(this.KEY_ZOOM, this.zoomLevel);
+//		nbt.putDouble(this.KEY_LATITUDE, this.centerLat);
+//		nbt.putDouble(this.KEY_LONGITUDE, this.centerLong);
+//		nbt.putLong(this.KEY_DELTAX, this.xDelta);
+//		nbt.putLong(this.KEY_DELTAZ, this.zDelta);
+////		nbt.setBoolean("borderset", this.isBorderSet);
+//		return nbt;
+//	}
 
 	
-	public static IRLWWorldData fromBytes(PacketBuffer buf) {
-		//Order should be the same as in this#toBytes(ByteBuf buf)
-		IRLWWorldData data = new IRLWWorldData();
-		data.setZoomLevel(buf.readInt());
-		data.setCenterLatitude(buf.readDouble());
-		data.setCenterLongitude(buf.readDouble());
-		data.setDeltaX(buf.readLong());
-		data.setDeltaZ(buf.readLong());
-//		data.isBorderSet = buf.readBoolean();
-		return data;
-	}
 
-	
-	public static void toBytes(IRLWWorldData data, PacketBuffer buf) {
-		//Order should be the same as in this#fromBytes(ByteBuf buf)
-		buf.writeInt(data.getZoomLevel());
-		buf.writeDouble(data.getCenterLatitude());
-		buf.writeDouble(data.getCenterLongitude());
-		buf.writeLong(data.getDeltaX());
-		buf.writeLong(data.getDeltaZ());
-//		buf.writeBoolean(this.isBorderSet);
-	}
 
 	
 	/**
@@ -164,7 +145,7 @@ public class IRLWWorldData extends WorldSavedData{
 		data.setDeltaX(generator.getDeltaX());
 		data.setDeltaZ(generator.getDeltaZ());
 		data.setZoomLevel(generator.getZoomLevel());
-		world.getSavedData().set(data); //FIXME 1.14.4 Make sure that works
+//		world.getSavedData().set(data); //FIXME 1.14.4 Make sure that works
 	}
 	
 	
@@ -233,7 +214,7 @@ public class IRLWWorldData extends WorldSavedData{
 	 */
 	public void setZoomLevel(int zoom){
 		this.zoomLevel = zoom;
-		this.markDirty();
+//		this.markDirty();
 	}
 	
 	/**
@@ -271,7 +252,7 @@ public class IRLWWorldData extends WorldSavedData{
 
 	public void setDeltaX(long xDelta) {
 		this.xDelta = xDelta;
-		this.markDirty();
+//		this.markDirty();
 	}
 
 
@@ -282,7 +263,7 @@ public class IRLWWorldData extends WorldSavedData{
 
 	public void setDeltaZ(long zDelta) {
 		this.zDelta = zDelta;
-		this.markDirty();
+//		this.markDirty();
 	}
 
 
@@ -293,7 +274,7 @@ public class IRLWWorldData extends WorldSavedData{
 
 	public void setCenterLongitude(double centerLong) {
 		this.centerLong = centerLong;
-		this.markDirty();
+//		this.markDirty();
 	}
 
 
@@ -304,7 +285,7 @@ public class IRLWWorldData extends WorldSavedData{
 
 	public void setCenterLatitude(double centerLat) {
 		this.centerLat = centerLat;
-		this.markDirty();
+//		this.markDirty();
 	}
 	
 	

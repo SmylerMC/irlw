@@ -21,9 +21,16 @@
 package org.framagit.smylermc.irlw.server.events;
 
 import org.framagit.smylermc.irlw.IRLW;
+import org.framagit.smylermc.irlw.network.IRLWPacketHandler;
+import org.framagit.smylermc.irlw.network.PacketWorldData;
+import org.framagit.smylermc.irlw.world.IRLWWorldData;
+
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.network.NetworkDirection;
 
 /**
  * The event subscriber for generic server events
@@ -44,9 +51,10 @@ public final class IRLWServerEventHandler {
 		
 		//FIXME 1.14.4 - IRLW World data sync with client in player log in
 		//Send world data to the client
-//		PlayerEntity player = (PlayerEntity)event.getPlayer();
-//		World world = player.getEntityWorld();
-//		if(world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)){
+		ServerPlayerEntity player = (ServerPlayerEntity)event.getPlayer();
+
+		World world = player.getEntityWorld();
+		if(world.getWorldType().getName().equals(IRLW.WORLD_TYPE_NAME)){
 //			IMessage data = (IMessage) world.loadData(IRLWWorldData.class, IRLWWorldData.IRLW_DATA);
 //			if(data == null) {
 //				IRLWWorldData.setForWorld(world);
@@ -55,8 +63,10 @@ public final class IRLWServerEventHandler {
 //			if(data == null) {
 //				IRLW.logger.fatal("Failed to load some data we just set before sending it, we are going to crash!!");
 //			}
-//			IRLWPacketHandler.INSTANCE.sendTo(data, player);
-//		}
+			IRLW.logger.debug("Sending world data to client " + player.getName().getString());
+			PacketWorldData packet = new PacketWorldData(new IRLWWorldData(0, 0, 0, 0, 0));
+			IRLWPacketHandler.INSTANCE.sendTo(packet, player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+		}
 	}
 	
 }
