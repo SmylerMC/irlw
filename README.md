@@ -1,3 +1,9 @@
+# This repository and project are archives. If you are looking for a similar mod, checkout the following:
+* [TerraPlusPlus](https://www.curseforge.com/minecraft/mc-mods/terraplusplus): 1.12.2 Earth generation mod developped by the Build the Earth community, fork of Terra121, depends on CubicChunks for realistic world heights, highly customizable, supports multiple projections and can generate roads and other landmarks from OpenStreetMap data. Forge 1.12.2 only.
+* [Terrarium](https://www.curseforge.com/minecraft/mc-mods/terrarium): 1.12.2 Earth generation mod producing a definitely more survival friendly world, developped by [Gegy](https://github.com/Gegy). Forge 1.12.2 only.
+* [Terra121](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project) Earth generation mod Terra++ was forked from, by [orangeadam3](https://github.com/orangeadam3). Forge 1.12.2 only.
+* [Terramap](https://www.curseforge.com/minecraft/mc-mods/terramap) Addon to TerraPlusPlus and Terra121 bringing a web map directly into the game, along with extra tools, by [SmylerMC](https://github.com/SmylerMC). Terramap with initialy just a port of IRLW's map GUI to Terra121.
+
 # IRLW
 ![IRLW Logo](https://framagit.org/SmylerMC/irlw/raw/master/images/logo.png)
 
